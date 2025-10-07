@@ -1,13 +1,38 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
+import { getJenkinsConfig } from "./config";
+import chalk from "chalk";
 
-const JENKINS_URL = process.env.JENKINS_URL!;
-const JENKINS_USER = process.env.JENKINS_USER!;
-const JENKINS_TOKEN = process.env.JENKINS_TOKEN!;
+let jenkinsInstance: AxiosInstance | null = null;
 
-export const jenkins = axios.create({
-  baseURL: JENKINS_URL,
-  auth: {
-    username: JENKINS_USER,
-    password: JENKINS_TOKEN,
-  },
+function createJenkinsClient(): AxiosInstance {
+  const config = getJenkinsConfig();
+  
+  if (!config) {
+    console.error(chalk.red("❌ No se encontró configuración de Jenkins."));
+    console.error(chalk.yellow("💡 Usa 'butler-cli config create' para crear una configuración."));
+    process.exit(1);
+  }
+
+  return axios.create({
+    baseURL: config.url,
+    auth: {
+      username: config.username,
+      password: config.token,
+    },
+  });
+}
+
+export function getJenkinsClient(): AxiosInstance {
+  if (!jenkinsInstance) {
+    jenkinsInstance = createJenkinsClient();
+  }
+  return jenkinsInstance;
+}
+
+// Para compatibilidad con el código existente
+export const jenkins = new Proxy({} as AxiosInstance, {
+  get(target, prop) {
+    const client = getJenkinsClient();
+    return client[prop as keyof AxiosInstance];
+  }
 });

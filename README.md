@@ -71,7 +71,69 @@ yarn global add butler-cli
 
 ## ⚙️ Configuración
 
-Antes de usar Butler CLI, necesitas configurar las variables de entorno para conectarte a tu servidor Jenkins:
+Butler CLI utiliza un sistema de configuraciones basado en archivos que permite gestionar múltiples servidores Jenkins de forma sencilla. Las configuraciones se almacenan en tu directorio home (`~/.butler-cli/configs/`).
+
+### Gestión de configuraciones
+
+#### Crear una nueva configuración
+
+```bash
+butler-cli config create
+```
+
+El comando te guiará paso a paso para crear una nueva configuración:
+- **Nombre**: Identificador único para la configuración
+- **URL**: Dirección del servidor Jenkins
+- **Usuario**: Tu nombre de usuario en Jenkins
+- **Token**: Token de API de Jenkins
+- **Descripción**: Descripción opcional
+- **Activar**: Si establecer como configuración activa
+
+#### Listar configuraciones
+
+```bash
+butler-cli config list
+# o usar el alias
+butler-cli config ls
+```
+
+Muestra todas las configuraciones disponibles con la configuración activa marcada.
+
+#### Usar una configuración
+
+```bash
+butler-cli config use <nombre>
+```
+
+Establece una configuración como activa para usar en los comandos de Jenkins.
+
+#### Ver configuración actual
+
+```bash
+butler-cli config current
+```
+
+Muestra la configuración actualmente activa.
+
+#### Eliminar una configuración
+
+```bash
+butler-cli config delete [nombre]
+# o usar el alias
+butler-cli config rm [nombre]
+```
+
+Si no especificas el nombre, te mostrará una lista para seleccionar.
+
+### Obtener token de Jenkins
+
+1. Ve a tu perfil de Jenkins → Configurar
+2. En la sección "API Token", genera un nuevo token
+3. Usa este token al crear la configuración
+
+### Compatibilidad con variables de entorno
+
+Por compatibilidad, Butler CLI seguirá funcionando con variables de entorno si no tienes configuraciones:
 
 ```bash
 export JENKINS_URL="https://tu-jenkins-server.com"
@@ -79,15 +141,92 @@ export JENKINS_USER="tu-usuario"
 export JENKINS_TOKEN="tu-token-de-api"
 ```
 
-### Obtener token de Jenkins
+### Ejemplo de workflow con configuraciones
 
-1. Ve a tu perfil de Jenkins → Configurar
-2. En la sección "API Token", genera un nuevo token
-3. Usa este token como `JENKINS_TOKEN`
+```bash
+# Crear configuración para entorno de desarrollo
+butler-cli config create
+# Nombre: dev
+# URL: https://jenkins-dev.empresa.com
+# Usuario: mi-usuario
+# Token: abc123...
+
+# Crear configuración para producción
+butler-cli config create
+# Nombre: prod
+# URL: https://jenkins-prod.empresa.com
+# Usuario: mi-usuario
+# Token: xyz789...
+
+# Listar configuraciones
+butler-cli config list
+
+# Usar configuración de desarrollo
+butler-cli config use dev
+butler-cli fetch-jobs
+
+# Cambiar a producción
+butler-cli config use prod
+butler-cli list-jobs
+```
 
 ## 🚀 Uso
 
 ### Comandos disponibles
+
+#### Gestión de configuraciones
+
+##### `config create`
+Crea una nueva configuración de Jenkins de forma interactiva.
+
+```bash
+butler-cli config create
+```
+
+##### `config list`
+Lista todas las configuraciones disponibles.
+
+```bash
+butler-cli config list
+butler-cli config ls  # alias
+```
+
+**Salida:**
+```
+● ACTIVA dev
+   📍 https://jenkins-dev.empresa.com
+   👤 mi-usuario
+   📝 Servidor de desarrollo
+
+○ prod
+   📍 https://jenkins-prod.empresa.com
+   👤 mi-usuario
+   📝 Servidor de producción
+```
+
+##### `config use <nombre>`
+Establece una configuración como activa.
+
+```bash
+butler-cli config use prod
+```
+
+##### `config current`
+Muestra la configuración actualmente activa.
+
+```bash
+butler-cli config current
+```
+
+##### `config delete [nombre]`
+Elimina una configuración (con confirmación).
+
+```bash
+butler-cli config delete dev
+butler-cli config rm dev  # alias
+```
+
+#### Comandos de Jenkins
 
 #### `fetch-jobs`
 Descarga y guarda la lista de todos los jobs disponibles en Jenkins.
@@ -148,11 +287,14 @@ butler-cli last-build my-pipeline-job
 ### Ejemplos de uso
 
 ```bash
-# Workflow típico
-butler-cli fetch-jobs           # Guardar lista de jobs
-butler-cli list-jobs           # Ver todos los jobs
-butler-cli job-info backend    # Info del job 'backend'
-butler-cli last-build backend  # Último build del job 'backend'
+# Workflow con configuraciones
+butler-cli config create           # Crear configuración
+butler-cli config list            # Ver configuraciones
+butler-cli config use production  # Cambiar a producción
+butler-cli fetch-jobs             # Obtener jobs de producción
+butler-cli list-jobs              # Ver jobs disponibles
+butler-cli job-info backend       # Info del job 'backend'
+butler-cli last-build backend     # Último build del job 'backend'
 ```
 
 ## 🗂️ Estructura del proyecto
@@ -161,16 +303,27 @@ butler-cli last-build backend  # Último build del job 'backend'
 butler-cli/
 ├── src/
 │   ├── commands/           # Comandos del CLI
+│   │   ├── config/         # Comandos de configuración
+│   │   │   ├── create.ts   # Crear configuración
+│   │   │   ├── list.ts     # Listar configuraciones
+│   │   │   ├── use.ts      # Usar configuración
+│   │   │   ├── delete.ts   # Eliminar configuración
+│   │   │   ├── current.ts  # Configuración actual
+│   │   │   └── index.ts    # Configurador de comandos
 │   │   ├── fetchJobs.ts   # Comando fetch-jobs
 │   │   ├── jobInfo.ts     # Comando job-info
 │   │   ├── lastBuild.ts   # Comando last-build
 │   │   └── listJobs.ts    # Comando list-jobs
 │   ├── utils/             # Utilidades
+│   │   ├── config.ts      # Gestión de configuraciones
 │   │   ├── jenkinsClient.ts # Cliente HTTP para Jenkins
 │   │   └── storage.ts     # Gestión de almacenamiento local
 │   └── index.ts           # Punto de entrada principal
 ├── data/                  # Datos locales (creado automáticamente)
 │   └── jobs.json         # Jobs guardados localmente
+├── ~/.butler-cli/         # Configuraciones de usuario
+│   ├── configs/          # Archivos de configuración (.json)
+│   └── current-config.txt # Configuración activa
 ├── package.json
 ├── tsconfig.json
 └── README.md

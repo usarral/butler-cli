@@ -5,6 +5,7 @@ import { fetchJobs } from "./commands/fetchJobs";
 import { listJobs } from "./commands/listJobs";
 import { jobInfo } from "./commands/jobInfo";
 import { lastBuild } from "./commands/lastBuild";
+import { setupConfigCommands } from "./commands/config";
 
 const program = new Command();
 
@@ -13,6 +14,10 @@ program
   .description("CLI para interactuar con Pipelines")
   .version("1.0.0");
 
+// Comandos de configuración
+setupConfigCommands(program);
+
+// Comandos existentes de Jenkins
 program.command("fetch-jobs").action(fetchJobs);
 program.command("list-jobs").action(listJobs);
 program
