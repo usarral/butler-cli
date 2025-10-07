@@ -7,8 +7,8 @@ import { lastBuild } from "./commands/lastBuild";
 const program = new Command();
 
 program
-  .name("jenkins-cli")
-  .description("CLI para interactuar con Jenkins")
+  .name("butler-cli")
+  .description("CLI para interactuar con Pipelines")
   .version("1.0.0");
 
 program.command("fetch-jobs").action(fetchJobs);
