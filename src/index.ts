@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
 import { fetchJobs } from "./commands/fetchJobs";
 import { listJobs } from "./commands/listJobs";

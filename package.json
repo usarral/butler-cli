@@ -1,18 +1,22 @@
 {
   "name": "butler-cli",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "CLI para interactuar con Jenkins Pipelines",
+  "main": "dist/index.js",
+  "bin": {
+    "butler-cli": "./dist/index.js"
+  },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node dist/index.js",
     "build": "tsc",
     "dev": "ts-node src/index.ts",
     "lint": "eslint . --ext .ts",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "postinstall": "npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["jenkins", "cli", "pipeline", "devops", "automation"],
+  "author": "usarral",
+  "license": "MIT",
   "packageManager": "pnpm@10.15.0",
   "devDependencies": {
     "@types/node": "^24.6.2",
