@@ -8,10 +8,13 @@ Butler CLI es una aplicación de terminal que permite gestionar y monitorear job
 
 ## ⚡ Características
 
-- 📋 Listar todos los jobs disponibles en Jenkins
-- 🔍 Obtener información detallada de un job específico
+- 📋 Listar todos los jobs disponibles en Jenkins (incluyendo carpetas y subcarpetas)
+- 🔍 Obtener información detallada de un job específico (soporta rutas de carpetas)
 - 🔄 Consultar el último build de un job
 - 💾 Guardar listado de jobs localmente para referencias futuras
+- 🗂️ Navegación por estructura de carpetas de Jenkins
+- 🔍 Búsqueda de jobs por nombre en toda la estructura
+- 📁 Visualización de estructura de carpetas
 - 🎨 Interfaz colorida y amigable en terminal
 
 ## 🛠️ Instalación
@@ -229,7 +232,7 @@ butler-cli config rm dev  # alias
 #### Comandos de Jenkins
 
 #### `fetch-jobs`
-Descarga y guarda la lista de todos los jobs disponibles en Jenkins.
+Descarga y guarda la lista de todos los jobs disponibles en Jenkins, incluyendo aquellos dentro de carpetas y subcarpetas.
 
 ```bash
 butler-cli fetch-jobs
@@ -237,64 +240,167 @@ butler-cli fetch-jobs
 
 **Salida:**
 ```
-✅ Jobs guardados para sugerencias futuras.
+🔍 Obteniendo todos los jobs (incluyendo carpetas)...
+✅ 15 jobs guardados para sugerencias futuras.
+
+📋 Ejemplos de jobs encontrados:
+   📁 frontend → build-app
+   📁 backend/microservices → user-service
+   📁 backend/microservices → order-service
+   🔹 integration-tests
+   ... y 11 más
 ```
 
 #### `list-jobs`
-Muestra todos los jobs disponibles en Jenkins.
+Muestra todos los jobs disponibles en Jenkins con estructura jerárquica de carpetas.
 
 ```bash
 butler-cli list-jobs
+butler-cli list-jobs --folders           # Incluir carpetas en la vista
+butler-cli list-jobs --max-level 2      # Limitar profundidad
 ```
 
 **Salida:**
 ```
-🔹 my-pipeline-job
-🔹 build-frontend
-🔹 deploy-backend
-🔹 run-tests
+� Estructura de Jenkins:
+========================
+📁 frontend ✓
+  🔹 build-app ✓
+  �🔹 deploy-app ✓
+📁 backend
+  📁 microservices
+    🔹 user-service ✓
+    🔹 order-service ⚠
+🔹 integration-tests ✓
+
+📊 Resumen:
+   Jobs: 5
+   Carpetas: 2
+```
+
+#### `show-folders`
+Muestra únicamente la estructura de carpetas de Jenkins.
+
+```bash
+butler-cli show-folders
+butler-cli show-folders --max-level 3
+```
+
+**Salida:**
+```
+📁 Estructura de Carpetas:
+===========================
+📁 frontend
+   📍 frontend
+📁 microservices
+   📍 backend/microservices
+� deployment
+   📍 devops/deployment
+
+📊 Total de carpetas: 3
+
+📈 Distribución por niveles:
+   Raíz: 2 carpetas
+   Nivel 1: 1 carpetas
+```
+
+#### `search-jobs`
+Busca jobs por nombre en toda la estructura de Jenkins.
+
+```bash
+butler-cli search-jobs user
+butler-cli search-jobs test
+```
+
+**Salida:**
+```
+📋 Jobs encontrados (3):
+==================================
+🔹 **user**-service ✓
+   📁 backend/microservices/user-service
+🔹 **user**-interface ✓
+   📁 frontend/user-interface
+🔹 integration-**test**s ⚠
+   📁 integration-tests
+
+📊 Resumen por carpetas:
+   📁 backend/microservices: 1 jobs
+   📁 frontend: 1 jobs
+   📁 Raíz: 1 jobs
 ```
 
 #### `job-info <jobName>`
-Obtiene información detallada de un job específico.
+Obtiene información detallada de un job específico. Ahora soporta rutas de carpetas.
 
 ```bash
 butler-cli job-info my-pipeline-job
+butler-cli job-info frontend/build-app
+butler-cli job-info backend/microservices/user-service
 ```
 
 **Salida:**
 ```
-📄 Job: my-pipeline-job
-🔁 Última ejecución: 42
-📦 Descripción: Pipeline para construir y desplegar la aplicación
+📄 Información del Job:
+========================
+Nombre: user-service
+Nombre completo: backend/microservices/user-service
+URL: https://jenkins.com/job/backend/job/microservices/job/user-service/
+Descripción: Microservicio para gestión de usuarios
+Último build: #42
+URL último build: https://jenkins.com/.../42/
+Último build exitoso: #42
+Tipo: Pipeline
+Estado: ✅ Exitoso
+Ejecutable: Sí
 ```
 
 #### `last-build <jobName>`
-Muestra información del último build ejecutado de un job.
+Muestra información del último build ejecutado de un job. Soporta rutas de carpetas.
 
 ```bash
 butler-cli last-build my-pipeline-job
+butler-cli last-build frontend/build-app
+butler-cli last-build backend/microservices/user-service
 ```
 
 **Salida:**
 ```
-🔢 Build #: 42
-📅 Fecha: 07/10/2025 14:30:25
-✅ Resultado: SUCCESS
-🔗 URL: https://jenkins.example.com/job/my-pipeline-job/42/
+🏗️ Información del Último Build:
+=================================
+Job: backend/microservices/user-service
+Número de build: #42
+URL: https://jenkins.com/.../42/
+Resultado: ✅ Exitoso
+Duración: 3m 45s
+Iniciado: 07/10/2025 14:30:25
+Finalizado: 07/10/2025 14:34:10
+Iniciado por:
+   • � Usuario: juan.perez
+   • 🔄 Cambio en repositorio
 ```
 
 ### Ejemplos de uso
 
 ```bash
-# Workflow con configuraciones
-butler-cli config create           # Crear configuración
-butler-cli config list            # Ver configuraciones
-butler-cli config use production  # Cambiar a producción
-butler-cli fetch-jobs             # Obtener jobs de producción
-butler-cli list-jobs              # Ver jobs disponibles
-butler-cli job-info backend       # Info del job 'backend'
-butler-cli last-build backend     # Último build del job 'backend'
+# Workflow con configuraciones y carpetas
+butler-cli config create              # Crear configuración
+butler-cli config list               # Ver configuraciones
+butler-cli config use production     # Cambiar a producción
+
+# Explorar estructura de Jenkins
+butler-cli fetch-jobs                # Obtener todos los jobs (incluye carpetas)
+butler-cli show-folders              # Ver solo estructura de carpetas
+butler-cli list-jobs --folders       # Ver jobs y carpetas
+butler-cli list-jobs --max-level 2   # Limitar profundidad
+
+# Buscar y obtener información específica
+butler-cli search-jobs user          # Buscar jobs que contengan "user"
+butler-cli job-info frontend/build   # Info del job en carpeta frontend
+butler-cli last-build backend/api    # Último build del job backend/api
+
+# Trabajar con jobs en subcarpetas
+butler-cli job-info devops/deployment/staging
+butler-cli last-build microservices/user-service
 ```
 
 ## 🗂️ Estructura del proyecto
@@ -310,19 +416,22 @@ butler-cli/
 │   │   │   ├── delete.ts   # Eliminar configuración
 │   │   │   ├── current.ts  # Configuración actual
 │   │   │   └── index.ts    # Configurador de comandos
-│   │   ├── fetchJobs.ts   # Comando fetch-jobs
-│   │   ├── jobInfo.ts     # Comando job-info
-│   │   ├── lastBuild.ts   # Comando last-build
-│   │   └── listJobs.ts    # Comando list-jobs
-│   ├── utils/             # Utilidades
-│   │   ├── config.ts      # Gestión de configuraciones
+│   │   ├── fetchJobs.ts    # Comando fetch-jobs
+│   │   ├── jobInfo.ts      # Comando job-info
+│   │   ├── lastBuild.ts    # Comando last-build
+│   │   ├── listJobs.ts     # Comando list-jobs
+│   │   ├── searchJobs.ts   # Comando search-jobs
+│   │   └── showFolders.ts  # Comando show-folders
+│   ├── utils/              # Utilidades
+│   │   ├── config.ts       # Gestión de configuraciones
 │   │   ├── jenkinsClient.ts # Cliente HTTP para Jenkins
-│   │   └── storage.ts     # Gestión de almacenamiento local
-│   └── index.ts           # Punto de entrada principal
-├── data/                  # Datos locales (creado automáticamente)
-│   └── jobs.json         # Jobs guardados localmente
-├── ~/.butler-cli/         # Configuraciones de usuario
-│   ├── configs/          # Archivos de configuración (.json)
+│   │   ├── jenkinsFolder.ts # Utilidades para carpetas de Jenkins
+│   │   └── storage.ts      # Gestión de almacenamiento local
+│   └── index.ts            # Punto de entrada principal
+├── data/                   # Datos locales (creado automáticamente)
+│   └── jobs.json          # Jobs guardados localmente
+├── ~/.butler-cli/          # Configuraciones de usuario
+│   ├── configs/           # Archivos de configuración (.json)
 │   └── current-config.txt # Configuración activa
 ├── package.json
 ├── tsconfig.json
