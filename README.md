@@ -1,6 +1,6 @@
-# Butler CLI
+# Butler CI CLI
 
-[![npm version](https://img.shields.io/npm/v/butler-cli.svg)](https://www.npmjs.com/package/butler-cli)
+[![npm version](https://img.shields.io/npm/v/butler-ci-cli.svg)](https://www.npmjs.com/package/butler-ci-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
@@ -9,7 +9,7 @@
 
 ## 📋 Description
 
-Butler CLI is a terminal application that allows you to manage and monitor Jenkins jobs through simple commands. It makes it easy to query information about pipelines, builds, and their status without needing to access the Jenkins web interface.
+Butler CI CLI is a terminal application that allows you to manage and monitor Jenkins jobs through simple commands. It makes it easy to query information about pipelines, builds, and their status without needing to access the Jenkins web interface.
 
 ## ⚡ Features
 
@@ -39,8 +39,8 @@ Butler CLI is a terminal application that allows you to manage and monitor Jenki
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/usarral/butler-cli.git
-cd butler-cli
+git clone https://github.com/usarral/butler-ci-cli.git
+cd butler-ci-cli
 ```
 
 2. Install dependencies:
@@ -78,25 +78,25 @@ yarn global add .
 
 ```bash
 # With npm
-npm install -g butler-cli
+npm install -g butler-ci-cli
 
 # With pnpm
-pnpm install -g butler-cli
+pnpm install -g butler-ci-cli
 
 # With yarn
-yarn global add butler-cli
+yarn global add butler-ci-cli
 ```
 
 ## ⚙️ Configuration
 
-Butler CLI uses a file-based configuration system that allows you to manage multiple Jenkins servers easily. Configurations are stored in your home directory (`~/.butler-cli/configs/`).
+Butler CI CLI uses a file-based configuration system that allows you to manage multiple Jenkins servers easily. Configurations are stored in your home directory (`~/.butler-ci-cli/configs/`).
 
 ### Configuration Management
 
 #### Create a new configuration
 
 ```bash
-butler-cli config create
+butler-ci-cli config create
 ```
 
 The command will guide you step by step to create a new configuration:
@@ -109,9 +109,9 @@ The command will guide you step by step to create a new configuration:
 
 #### List configurations
 ```bash
-butler-cli config list
+butler-ci-cli config list
 # or use the alias
-butler-cli config ls
+butler-ci-cli config ls
 ```
 
 Shows all available configurations with the active one marked.
@@ -119,7 +119,7 @@ Shows all available configurations with the active one marked.
 #### Use a configuration
 
 ```bash
-butler-cli config use <name>
+butler-ci-cli config use <name>
 ```
 
 Sets a configuration as active for use in Jenkins commands.
@@ -127,7 +127,7 @@ Sets a configuration as active for use in Jenkins commands.
 #### View current configuration
 
 ```bash
-butler-cli config current
+butler-ci-cli config current
 ```
 
 Shows the currently active configuration.
@@ -135,9 +135,9 @@ Shows the currently active configuration.
 #### Delete a configuration
 
 ```bash
-butler-cli config delete [name]
+butler-ci-cli config delete [name]
 # or use the alias
-butler-cli config rm [name]
+butler-ci-cli config rm [name]
 ```
 
 If you don't specify the name, it will show you a list to select from.
@@ -150,7 +150,7 @@ If you don't specify the name, it will show you a list to select from.
 
 ### Compatibility with environment variables
 
-For compatibility, Butler CLI will still work with environment variables if you don't have configurations:
+For compatibility, Butler CI CLI will still work with environment variables if you don't have configurations:
 
 ```bash
 export JENKINS_URL="https://your-jenkins-server.com"
@@ -186,65 +186,65 @@ Edits configuration preferences (editor, log viewer, download directory).
 Downloads and saves the list of all available jobs in Jenkins, including those within folders and subfolders.
 
 ```bash
-butler-cli fetch-jobs
+butler-ci-cli fetch-jobs
 ```
 
 #### `list-jobs`
 Shows all available jobs in Jenkins with hierarchical folder structure.
 
 ```bash
-butler-cli list-jobs
-butler-cli list-jobs --folders           # Include folders in the view
-butler-cli list-jobs --max-level 2      # Limit depth
+butler-ci-cli list-jobs
+butler-ci-cli list-jobs --folders           # Include folders in the view
+butler-ci-cli list-jobs --max-level 2      # Limit depth
 ```
 
 #### `show-folders`
 Shows only the Jenkins folder structure.
 
 ```bash
-butler-cli show-folders
-butler-cli show-folders --max-level 3
+butler-ci-cli show-folders
+butler-ci-cli show-folders --max-level 3
 ```
 
 #### `search-jobs`
 Searches for jobs by name across the entire Jenkins structure.
 
 ```bash
-butler-cli search-jobs <searchTerm>
+butler-ci-cli search-jobs <searchTerm>
 ```
 
 #### `job-info <jobName>`
 Gets detailed information about a specific job. Supports folder paths.
 
 ```bash
-butler-cli job-info my-pipeline-job
-butler-cli job-info frontend/build-app
-butler-cli job-info backend/microservices/user-service
+butler-ci-cli job-info my-pipeline-job
+butler-ci-cli job-info frontend/build-app
+butler-ci-cli job-info backend/microservices/user-service
 ```
 
 #### `last-build <jobName>`
 Shows information about the last executed build of a job. Supports folder paths.
 
 ```bash
-butler-cli last-build my-pipeline-job
-butler-cli last-build frontend/build-app
+butler-ci-cli last-build my-pipeline-job
+butler-ci-cli last-build frontend/build-app
 ```
 
 #### `job-params <jobName>`
 Shows the parameters a job needs to run, including their default values.
 
 ```bash
-butler-cli job-params my-pipeline-job
+butler-ci-cli job-params my-pipeline-job
 ```
 
 #### `build <jobName>`
 Executes a build of a job in an assisted manner. The command will interactively request values for each required parameter.
 
 ```bash
-butler-cli build my-pipeline-job
+butler-ci-cli build my-pipeline-job
 
 # You can also pass parameters directly via CLI
-butler-cli build my-job --params "ENVIRONMENT=production,VERSION=1.2.3"
+butler-ci-cli build my-job --params "ENVIRONMENT=production,VERSION=1.2.3"
 ```
 
 #### `logs <jobName> <buildNumber|latest>`
@@ -252,55 +252,55 @@ View, download, or open logs from a specific build in an editor.
 
 ```bash
 # View logs in terminal
-butler-cli logs my-job 42
-butler-cli logs my-job latest
+butler-ci-cli logs my-job 42
+butler-ci-cli logs my-job latest
 
 # Download logs to file
-butler-cli logs my-job 42 --download
-butler-cli logs my-job latest -d
+butler-ci-cli logs my-job 42 --download
+butler-ci-cli logs my-job latest -d
 
 # Open logs in configured editor
-butler-cli logs my-job 42 --editor
-butler-cli logs my-job latest -e
+butler-ci-cli logs my-job 42 --editor
+butler-ci-cli logs my-job latest -e
 
 # Download to specific location
-butler-cli logs my-job 42 --download --output /tmp/build.log
+butler-ci-cli logs my-job 42 --download --output /tmp/build.log
 ```
 
 ### Example Workflow
 
 ```bash
 # Create configuration
-butler-cli config create              # Create configuration
-butler-cli config list               # View configurations
-butler-cli config use production     # Switch to production
+butler-ci-cli config create              # Create configuration
+butler-ci-cli config list               # View configurations
+butler-ci-cli config use production     # Switch to production
 
 # Explore Jenkins structure
-butler-cli fetch-jobs                # Get all jobs (includes folders)
-butler-cli show-folders              # View folder structure only
-butler-cli list-jobs --folders       # View jobs and folders
+butler-ci-cli fetch-jobs                # Get all jobs (includes folders)
+butler-ci-cli show-folders              # View folder structure only
+butler-ci-cli list-jobs --folders       # View jobs and folders
 
 # Search and get specific information
-butler-cli search-jobs user          # Search for jobs containing "user"
-butler-cli job-info frontend/build   # Info about job in frontend folder
-butler-cli last-build backend/api    # Last build of backend/api job
+butler-ci-cli search-jobs user          # Search for jobs containing "user"
+butler-ci-cli job-info frontend/build   # Info about job in frontend folder
+butler-ci-cli last-build backend/api    # Last build of backend/api job
 
 # View parameters and execute builds
-butler-cli job-params my-pipeline    # View job parameters
-butler-cli build my-pipeline         # Execute build (interactive mode)
-butler-cli build my-pipeline --params "ENV=prod,VERSION=1.0.0"
+butler-ci-cli job-params my-pipeline    # View job parameters
+butler-ci-cli build my-pipeline         # Execute build (interactive mode)
+butler-ci-cli build my-pipeline --params "ENV=prod,VERSION=1.0.0"
 
 # Work with logs
-butler-cli logs my-job 42            # View logs in terminal
-butler-cli logs my-job latest        # View latest build logs
-butler-cli logs my-job 42 -d         # Download logs
-butler-cli logs my-job latest -e     # Open latest build in editor
+butler-ci-cli logs my-job 42            # View logs in terminal
+butler-ci-cli logs my-job latest        # View latest build logs
+butler-ci-cli logs my-job 42 -d         # Download logs
+butler-ci-cli logs my-job latest -e     # Open latest build in editor
 ```
 
 ## 🗂️ Project Structure
 
 ```
-butler-cli/
+butler-ci-cli/
 ├── src/
 │   ├── commands/           # CLI commands
 │   │   ├── config/         # Configuration commands
@@ -381,12 +381,12 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 If you find a bug or have suggestions, please:
 
-1. Check if a similar issue exists in [GitHub Issues](https://github.com/usarral/butler-cli/issues)
+1. Check if a similar issue exists in [GitHub Issues](https://github.com/usarral/butler-ci-cli/issues)
 2. Check the [FAQ](docs/FAQ.md)
 3. Create a new issue with:
    - Problem description
    - Steps to reproduce
-   - Butler CLI version (`butler-cli --version`)
+   - Butler CI CLI version (`butler-ci-cli --version`)
    - Node.js version (`node --version`)
    - Operating system
    - Error logs (if applicable)
@@ -394,4 +394,4 @@ If you find a bug or have suggestions, please:
 ## 📧 Contact
 
 **Author:** usarral  
-**Repository:** [https://github.com/usarral/butler-cli](https://github.com/usarral/butler-cli)
+**Repository:** [https://github.com/usarral/butler-ci-cli](https://github.com/usarral/butler-ci-cli)

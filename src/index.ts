@@ -15,9 +15,9 @@ import { setupConfigCommands } from "./commands/config";
 const program = new Command();
 
 program
-  .name("butler-cli")
+  .name("butler-ci-cli")
   .description("CLI para interactuar con Pipelines")
-  .version("1.0.0");
+  .version("3.0.0");
 
 // Comandos de configuración
 setupConfigCommands(program);

@@ -7,9 +7,8 @@ export async function showCurrentConfig(): Promise<void> {
   const currentConfigName = configManager.getCurrentConfig();
   
   if (!currentConfigName) {
-    logger.warn(formatters.warning(`${msg.icons.warning} ${msg.errors.noActiveConfig}`));
-    logger.info(formatters.secondary(`${msg.icons.info} Usa 'butler-cli config list' para ver las disponibles`));
-    logger.info(formatters.secondary(`${msg.icons.info} ${msg.hints.activateConfig}`));
+    logger.error(formatters.error(`${msg.icons.error} No hay configuración activa`));
+    logger.info(formatters.secondary(`${msg.icons.info} Usa 'butler-ci-cli config list' para ver las disponibles`));
     return;
   }
 

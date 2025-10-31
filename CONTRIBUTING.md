@@ -1,6 +1,6 @@
 # Contributing Guide
 
-Thank you for your interest in contributing to Butler CLI! This guide will help you get started.
+Thank you for your interest in contributing to Butler CI CLI! This guide will help you get started.
 
 ## 📋 Table of Contents
 
@@ -29,7 +29,7 @@ If you find a bug, open an issue with:
   2. Step 2
   3. ...
 - **Environment information**:
-  - Butler CLI version
+  - Butler CI CLI version
   - Node.js version (`node --version`)
   - Operating system
   - Jenkins version
@@ -49,8 +49,8 @@ Feature suggestions are welcome:
 1. **Fork the repository**
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/your-username/butler-cli.git
-   cd butler-cli
+   git clone https://github.com/your-username/butler-ci-cli.git
+   cd butler-ci-cli
    ```
 3. **Create a branch**:
    ```bash
@@ -83,8 +83,8 @@ Feature suggestions are welcome:
 
 ```bash
 # Clone the repository
-git clone https://github.com/usarral/butler-cli.git
-cd butler-cli
+git clone https://github.com/usarral/butler-ci-cli.git
+cd butler-ci-cli
 
 # Install dependencies
 pnpm install
@@ -102,7 +102,7 @@ To test locally, you'll need access to a Jenkins server:
 
 1. Configure credentials:
    ```bash
-   butler-cli config create
+   butler-ci-cli config create
    ```
 
 2. Or use environment variables:

@@ -335,7 +335,7 @@ export async function downloadBuildLogs(
   
   // Si no se especifica ruta, usar directorio por defecto
   if (!outputPath) {
-    const logsDir = join(homedir(), ".butler-cli", "logs");
+    const logsDir = join(homedir(), ".butler-ci-cli", "logs");
     const { mkdirSync, existsSync } = await import("node:fs");
     
     if (!existsSync(logsDir)) {

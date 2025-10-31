@@ -1,10 +1,10 @@
-# Jenkins API Guide (for Butler CLI)
+# Jenkins API Guide (for Butler CI CLI)
 
-This document explains the Jenkins REST API endpoints Butler CLI uses, how the client interacts with them, and important implementation notes.
+This document explains the Jenkins REST API endpoints Butler CI CLI uses, how the client interacts with them, and important implementation notes.
 
 ## Authentication
 
-Butler CLI uses HTTP Basic authentication with username and an API token. Store the token securely and use it in configurations.
+Butler CI CLI uses HTTP Basic authentication with username and an API token. Store the token securely and use it in configurations.
 
 ### Obtaining an API token
 
@@ -25,7 +25,7 @@ Example:
 GET /job/my-job/api/json?tree=name,lastBuild[number,result]
 ```
 
-## Endpoints commonly used by Butler CLI
+## Endpoints commonly used by Butler CI CLI
 
 - `GET /api/json` — server overview and top-level jobs
 - `GET /job/{jobName}/api/json` — detailed job information

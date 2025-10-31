@@ -56,7 +56,7 @@ Este proyecto está configurado para publicarse automáticamente en npm mediante
 Después de la publicación, verifica que el paquete esté disponible:
 
 ```bash
-npm view butler-cli
+npm view butler-ci-cli
 ```
 
 ## Instalación del paquete
@@ -64,13 +64,13 @@ npm view butler-cli
 Los usuarios podrán instalar el paquete con:
 
 ```bash
-npm install -g butler-cli
+npm install -g butler-ci-cli
 ```
 
 O con pnpm:
 
 ```bash
-pnpm add -g butler-cli
+pnpm add -g butler-ci-cli
 ```
 
 ## Notas importantes

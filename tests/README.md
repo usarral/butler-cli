@@ -1,4 +1,4 @@
-# Tests - Butler CLI
+# Tests - Butler CI CLI
 
 ## Descripción
 

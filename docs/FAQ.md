@@ -1,6 +1,6 @@
 # Frequently Asked Questions (FAQ)
 
-Answers to the most common questions about Butler CLI.
+Answers to the most common questions about Butler CI CLI.
 
 ## 📋 Table of Contents
 
@@ -13,19 +13,19 @@ Answers to the most common questions about Butler CLI.
 
 ## 🔧 Installation and Configuration
 
-### How do I install Butler CLI?
+### How do I install Butler CI CLI?
 
 There are two ways:
 
 **From npm (recommended when published):**
 ```bash
-npm install -g butler-cli
+npm install -g butler-ci-cli
 ```
 
 **From source:**
 ```bash
-git clone https://github.com/usarral/butler-cli.git
-cd butler-cli
+git clone https://github.com/usarral/butler-ci-cli.git
+cd butler-ci-cli
 pnpm install
 pnpm build
 pnpm install -g .
@@ -33,17 +33,17 @@ pnpm install -g .
 
 ### What version of Node.js do I need?
 
-Butler CLI requires Node.js version 16 or higher. To check your version:
+Butler CI CLI requires Node.js version 16 or higher. To check your version:
 ```bash
 node --version
 ```
 
 ### Where are configurations stored?
 
-Configurations are stored in `~/.butler-cli/`:
-- Configuration files: `~/.butler-cli/configs/`
-- Active configuration: `~/.butler-cli/current-config.txt`
-- Downloaded logs: `~/.butler-cli/logs/` (by default)
+Configurations are stored in `~/.butler-ci-cli/`:
+- Configuration files: `~/.butler-ci-cli/configs/`
+- Active configuration: `~/.butler-ci-cli/current-config.txt`
+- Downloaded logs: `~/.butler-ci-cli/logs/` (by default)
 
 ### How do I get my Jenkins API token?
 
@@ -63,28 +63,28 @@ Yes! That's the purpose of the configuration system:
 
 ```bash
 # Create configuration for development
-butler-cli config create
+butler-ci-cli config create
 # name: dev, url: https://jenkins-dev.com
 
 # Create configuration for production
-butler-cli config create
+butler-ci-cli config create
 # name: prod, url: https://jenkins-prod.com
 
 # Switch between them
-butler-cli config use dev
-butler-cli config use prod
+butler-ci-cli config use dev
+butler-ci-cli config use prod
 ```
 
 ### How do I update Butler CLI?
 
 **If installed from npm:**
 ```bash
-npm update -g butler-cli
+npm update -g butler-ci-cli
 ```
 
 **If installed from source:**
 ```bash
-cd butler-cli
+cd butler-ci-cli
 git pull
 pnpm install
 pnpm build
@@ -108,7 +108,7 @@ If there's no active configuration, these variables will be used automatically.
 ### How do I see which configuration is active?
 
 ```bash
-butler-cli config current
+butler-ci-cli config current
 ```
 
 ### Can I edit an existing configuration?
@@ -116,10 +116,10 @@ butler-cli config current
 Currently you can edit preferences (editor, log viewer, directory):
 
 ```bash
-butler-cli config edit [name]
+butler-ci-cli config edit [name]
 ```
 
-To change URL, user, or token, you need to create a new configuration or manually edit the JSON file in `~/.butler-cli/configs/`.
+To change URL, user, or token, you need to create a new configuration or manually edit the JSON file in `~/.butler-ci-cli/configs/`.
 
 ### What happens if I delete the active configuration?
 
@@ -130,16 +130,16 @@ If you delete the active configuration, Butler CLI will:
 ### How do I change the default editor?
 
 ```bash
-butler-cli config edit
+butler-ci-cli config edit
 # Select your preferred editor (code, vim, nano, etc.)
 ```
 
 ### Where are logs downloaded by default?
 
-By default to `~/.butler-cli/logs/`, but you can change it:
+By default to `~/.butler-ci-cli/logs/`, but you can change it:
 
 ```bash
-butler-cli config edit
+butler-ci-cli config edit
 # Specify your preferred directory
 ```
 
@@ -149,23 +149,23 @@ butler-cli config edit
 
 ```bash
 # List only jobs
-butler-cli list-jobs
+butler-ci-cli list-jobs
 
 # Include folders
-butler-cli list-jobs --folders
+butler-ci-cli list-jobs --folders
 
 # Limit depth
-butler-cli list-jobs --max-level 2
+butler-ci-cli list-jobs --max-level 2
 ```
 
 ### How do I search for a specific job?
 
 ```bash
-butler-cli search-jobs <term>
+butler-ci-cli search-jobs <term>
 
 # Example
-butler-cli search-jobs user
-butler-cli search-jobs deploy
+butler-ci-cli search-jobs user
+butler-ci-cli search-jobs deploy
 ```
 
 ### How do I work with jobs in folders?
@@ -174,39 +174,39 @@ Use the full path separated by `/`:
 
 ```bash
 # Job in folder
-butler-cli job-info frontend/build-app
+butler-ci-cli job-info frontend/build-app
 
 # Job in subfolder
-butler-cli job-info backend/microservices/user-service
+butler-ci-cli job-info backend/microservices/user-service
 
 # Last build
-butler-cli last-build backend/api/deploy
+butler-ci-cli last-build backend/api/deploy
 ```
 
 ### How do I execute a build with parameters?
 
 **Interactive mode (recommended):**
 ```bash
-butler-cli build my-job
+butler-ci-cli build my-job
 # It will ask for the value of each parameter
 ```
 
 **With CLI parameters:**
 ```bash
-butler-cli build my-job --params "ENV=prod,VERSION=1.0.0,SKIP_TESTS=false"
+butler-ci-cli build my-job --params "ENV=prod,VERSION=1.0.0,SKIP_TESTS=false"
 ```
 
 ### How do I view logs from the latest build?
 
 ```bash
 # View in terminal
-butler-cli logs my-job latest
+butler-ci-cli logs my-job latest
 
 # Download to file
-butler-cli logs my-job latest --download
+butler-ci-cli logs my-job latest --download
 
 # Open in editor
-butler-cli logs my-job latest --editor
+butler-ci-cli logs my-job latest --editor
 ```
 
 ### Can I download logs to a specific location?
@@ -214,7 +214,7 @@ butler-cli logs my-job latest --editor
 Yes, use the `--output` option:
 
 ```bash
-butler-cli logs my-job 42 --download --output /tmp/build.log
+butler-ci-cli logs my-job 42 --download --output /tmp/build.log
 ```
 
 ## 🔧 Troubleshooting
@@ -228,8 +228,8 @@ butler-cli logs my-job 42 --download --output /tmp/build.log
 2. Generate a new token in Jenkins
 3. Update the configuration:
    ```bash
-   butler-cli config delete name
-   butler-cli config create
+   butler-ci-cli config delete name
+   butler-ci-cli config create
    ```
 
 ### Error: "Could not connect to Jenkins"
@@ -242,7 +242,7 @@ butler-cli logs my-job 42 --download --output /tmp/build.log
 **Solutions:**
 1. Verify the URL:
    ```bash
-   butler-cli config current
+   butler-ci-cli config current
    ```
 2. Try accessing the URL in a browser
 3. Verify you have network connection
@@ -256,16 +256,16 @@ butler-cli logs my-job 42 --download --output /tmp/build.log
 **Solutions:**
 1. List all jobs:
    ```bash
-   butler-cli fetch-jobs
-   butler-cli list-jobs
+   butler-ci-cli fetch-jobs
+   butler-ci-cli list-jobs
    ```
 2. Search for the job:
    ```bash
-   butler-cli search-jobs <name>
+   butler-ci-cli search-jobs <name>
    ```
 3. Use the full path if it's in a folder:
    ```bash
-   butler-cli job-info folder/subfolder/job
+   butler-ci-cli job-info folder/subfolder/job
    ```
 
 ### Error: "No permissions to access this resource"
@@ -294,23 +294,23 @@ Contact the Jenkins administrator to get the necessary permissions.
 **Solution:**
 ```bash
 # Recreate configuration directory
-mkdir -p ~/.butler-cli/configs
-mkdir -p ~/.butler-cli/logs
+mkdir -p ~/.butler-ci-cli/configs
+mkdir -p ~/.butler-ci-cli/logs
 
 # Create new configuration
-butler-cli config create
+butler-ci-cli config create
 ```
 
 ## 🔒 Security
 
 ### Is it safe to store my token in a file?
 
-Tokens are stored in plain text in `~/.butler-cli/configs/`. It's recommended to:
+Tokens are stored in plain text in `~/.butler-ci-cli/configs/`. It's recommended to:
 
 1. Set restrictive permissions:
    ```bash
-   chmod 700 ~/.butler-cli
-   chmod 600 ~/.butler-cli/configs/*
+   chmod 700 ~/.butler-ci-cli
+   chmod 600 ~/.butler-ci-cli/configs/*
    ```
 
 2. Don't share your home directory
@@ -327,8 +327,8 @@ export JENKINS_URL="https://jenkins.com"
 export JENKINS_USER="ci-user"
 export JENKINS_TOKEN="$CI_TOKEN"
 
-butler-cli fetch-jobs
-butler-cli build my-job --params "ENV=prod"
+butler-ci-cli fetch-jobs
+butler-ci-cli build my-job --params "ENV=prod"
 ```
 
 ### What permissions do I need in Jenkins?
@@ -350,7 +350,7 @@ Read the [Contributing Guide](CONTRIBUTING.md) for more information.
 
 ### Where do I report bugs or suggest features?
 
-Open an issue on GitHub: https://github.com/usarral/butler-cli/issues
+Open an issue on GitHub: https://github.com/usarral/butler-ci-cli/issues
 
 ### Is there a version with a graphical interface?
 
@@ -371,10 +371,10 @@ Yes, Butler CLI is cross-platform and works on:
 
 ```bash
 # If installed with npm
-npm uninstall -g butler-cli
+npm uninstall -g butler-ci-cli
 
 # Remove configurations (optional)
-rm -rf ~/.butler-cli
+rm -rf ~/.butler-ci-cli
 ```
 
 ### Does Butler CLI have telemetry or analytics?

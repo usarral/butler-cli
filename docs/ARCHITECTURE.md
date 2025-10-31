@@ -1,6 +1,6 @@
-# Butler CLI Architecture
+# Butler CI CLI Architecture
 
-This document describes the internal architecture of Butler CLI, its main components and how they interact.
+This document describes the internal architecture of Butler CI CLI, its main components and how they interact.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ This document describes the internal architecture of Butler CLI, its main compon
 
 ## Overview
 
-Butler CLI is a command-line application written in TypeScript and Node.js. The project follows a modular command pattern. Each command is implemented as a separate module and reuses shared utilities (config management, HTTP client, formatters, storage).
+Butler CI CLI is a command-line application written in TypeScript and Node.js. The project follows a modular command pattern. Each command is implemented as a separate module and reuses shared utilities (config management, HTTP client, formatters, storage).
 
 High-level architecture:
 
@@ -33,7 +33,7 @@ User -> Commander (CLI parser) -> Command modules -> Utilities -> Jenkins API
 Typical flow for a command:
 
 1. Commander parses arguments and invokes the command handler.
-2. The handler obtains the active configuration (from `~/.butler-cli` or environment variables).
+2. The handler obtains the active configuration (from `~/.butler-ci-cli` or environment variables).
 3. The handler acquires a Jenkins HTTP client instance.
 4. The handler performs HTTP requests to Jenkins API using the client.
 5. Responses are processed and formatted for display.
@@ -77,8 +77,8 @@ Note: the actual code uses `getJenkinsConfig()` and exports a Proxy for backward
 
 ## Configuration system
 
-- Config files are stored under `~/.butler-cli/configs/` as JSON files.
-- The active configuration name is stored in `~/.butler-cli/current-config.txt`.
+- Config files are stored under `~/.butler-ci-cli/configs/` as JSON files.
+- The active configuration name is stored in `~/.butler-ci-cli/current-config.txt`.
 - If no active configuration is found, the code falls back to environment variables: `JENKINS_URL`, `JENKINS_USER`, `JENKINS_TOKEN`.
 
 Configuration shape (example):

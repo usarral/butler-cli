@@ -6,7 +6,7 @@ import { formatters } from "../../utils/formatters";
 export async function useConfig(name: string): Promise<void> {
   if (!name) {
     logger.error(formatters.error(`${msg.icons.error} Debes especificar el nombre de la configuración`));
-    logger.info(formatters.secondary(`${msg.icons.info} Uso: butler-cli config use <nombre>`));
+    logger.info(formatters.secondary(`${msg.icons.info} Uso: butler-ci-cli config use <nombre>`));
     return;
   }
 
@@ -14,7 +14,7 @@ export async function useConfig(name: string): Promise<void> {
   
   if (!config) {
     logger.error(formatters.error(`${msg.icons.error} ${msg.errors.configNotFound(name)}`));
-    logger.info(formatters.secondary(`${msg.icons.info} Usa 'butler-cli config list' para ver las disponibles`));
+    logger.info(formatters.secondary(`${msg.icons.info} Usa 'butler-ci-cli config list' para ver las disponibles`));
     return;
   }
 

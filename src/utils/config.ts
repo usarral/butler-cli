@@ -33,8 +33,8 @@ class ConfigManagerImpl implements ConfigManager {
   private readonly currentConfigFile: string;
 
   constructor() {
-    this.configDir = join(homedir(), ".butler-cli", "configs");
-    this.currentConfigFile = join(homedir(), ".butler-cli", "current-config.txt");
+    this.configDir = join(homedir(), ".butler-ci-cli", "configs");
+    this.currentConfigFile = join(homedir(), ".butler-ci-cli", "current-config.txt");
     this.ensureConfigDir();
   }
 

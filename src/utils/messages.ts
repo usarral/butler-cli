@@ -25,10 +25,10 @@ export const messages = {
 
   // Sugerencias
   hints: {
-    createConfig: "Usa 'butler-cli config create' para crear una configuración.",
-    activateConfig: "Usa 'butler-cli config use <nombre>' para activar una configuración.",
-    editConfig: "Usa 'butler-cli config edit <nombre>' o activa una configuración primero.",
-    configureEditor: "Configura uno con: butler-cli config edit <nombre> --editor <editor>",
+    createConfig: "Usa 'butler-ci-cli config create' para crear una configuración.",
+    activateConfig: "Usa 'butler-ci-cli config use <nombre>' para activar una configuración.",
+    editConfig: "Usa 'butler-ci-cli config edit <nombre>' o activa una configuración primero.",
+    configureEditor: "Configura uno con: butler-ci-cli config edit <nombre> --editor <editor>",
   },
 
   // Éxitos
@@ -59,7 +59,7 @@ export const messages = {
     openingInEditor: (editor: string) => `Abriendo logs en ${editor}`,
     usingDefaultEditor: (editor: string) => `💡 Usando editor: ${editor} (no configurado, usando por defecto)`,
     noEditorConfigured: '⚠️  No se encontró un editor configurado.',
-    configureEditorHint: '💡 Configura uno con: butler-cli config edit <nombre> --editor <editor>',
+    configureEditorHint: '💡 Configura uno con: butler-ci-cli config edit <nombre> --editor <editor>',
     editingActiveConfig: (name: string) => `Editando configuración activa: ${name}`,
   },
 
@@ -115,8 +115,8 @@ export const messages = {
     setAsActive: 'Establecer como configuración activa:',
     editorPreferred: 'Editor preferido para archivos (code, vim, nano, etc.):',
     logViewer: 'Visor de logs (deja vacío para usar el editor principal):',
-    logsDirectory: 'Directorio para descargar logs (deja vacío para usar ~/.butler-cli/logs):',
-    downloadLogsDir: 'Directorio para descargar logs (deja vacío para usar ~/.butler-cli/logs):',
+    logsDirectory: 'Directorio para descargar logs (deja vacío para usar ~/.butler-ci-cli/logs):',
+    downloadLogsDir: 'Directorio para descargar logs (deja vacío para usar ~/.butler-ci-cli/logs):',
   },
 
   // Valores por defecto y placeholders
@@ -124,7 +124,7 @@ export const messages = {
     noDescription: 'Sin descripción',
     noBuild: 'Ninguno',
     useEditorPrimary: '(usa el editor principal)',
-    defaultLogsDir: '(~/.butler-cli/logs)',
+    defaultLogsDir: '(~/.butler-ci-cli/logs)',
     notConfigured: '(no configurado)',
   },
 

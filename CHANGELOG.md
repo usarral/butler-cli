@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to Butler CI CLI will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
@@ -14,7 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Export reports in different formats
 - Integration with other CI/CD tools
 
-## [1.0.0] - 2025-10-31
+## [3.0.0] - 2025-10-31
+
+### Changed
+- **BREAKING CHANGE**: Renamed project from `butler-cli` to `butler-ci-cli`
+  - Package name changed to `butler-ci-cli`
+  - Command renamed to `butler-ci-cli`
+  - Configuration directory changed from `~/.butler-cli` to `~/.butler-ci-cli`
+  - Repository URL updated to `https://github.com/usarral/butler-ci-cli`
+- All documentation updated to reflect the new name
+- Updated all references across the codebase
+
+### Migration Guide
+- Uninstall old version: `npm uninstall -g butler-cli`
+- Install new version: `npm install -g butler-ci-cli`
+- Migrate configurations manually from `~/.butler-cli` to `~/.butler-ci-cli` if needed
 
 ## [2.0.0] - 2025-10-31
 
@@ -126,6 +140,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `Fixed` - Bug fixes
 - `Security` - Security vulnerabilities fixed
 
-[Unreleased]: https://github.com/usarral/butler-cli/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/usarral/butler-cli/releases/tag/v1.0.0
-[0.1.0]: https://github.com/usarral/butler-cli/releases/tag/v0.1.0
+[Unreleased]: https://github.com/usarral/butler-ci-cli/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/usarral/butler-ci-cli/releases/tag/v1.0.0
+[0.1.0]: https://github.com/usarral/butler-ci-cli/releases/tag/v0.1.0
