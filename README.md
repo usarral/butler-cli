@@ -18,6 +18,9 @@ Butler CLI es una aplicación de terminal que permite gestionar y monitorear job
 - 🎨 Interfaz colorida y amigable en terminal
 - 📋 Consulta de parámetros requeridos por jobs
 - 🚀 Ejecución de builds de forma asistida (interactiva o con parámetros CLI)
+- 📄 Visualización y descarga de logs de builds
+- ✏️ Apertura de logs en editores configurables
+- ⚙️ Sistema de preferencias personalizables (editor, visor de logs, directorio)
 
 ## 🛠️ Instalación
 
@@ -229,6 +232,35 @@ Elimina una configuración (con confirmación).
 ```bash
 butler-cli config delete dev
 butler-cli config rm dev  # alias
+```
+
+##### `config edit [nombre]`
+Edita las preferencias de una configuración (editor, visor de logs, directorio de descarga).
+
+```bash
+butler-cli config edit           # Edita la configuración activa
+butler-cli config edit prod      # Edita una configuración específica
+```
+
+**Preferencias configurables:**
+- **Editor preferido**: Para abrir archivos de logs (code, vim, nano, etc.)
+- **Visor de logs**: Editor específico para logs (opcional, usa el editor principal si no se especifica)
+- **Directorio de logs**: Ruta donde descargar los logs (por defecto: `~/.butler-cli/logs`)
+
+**Ejemplo de configuración:**
+```
+⚙️  Editar Preferencias de Configuración
+
+? Editor preferido para archivos: code
+? Visor de logs: 
+? Directorio para descargar logs: 
+
+✅ Preferencias actualizadas para "dev"
+
+📋 Preferencias actuales:
+  Editor: code
+  Visor de logs: (usa el editor principal)
+  Dir. de logs: (~/.butler-cli/logs)
 ```
 
 #### Comandos de Jenkins
@@ -468,6 +500,86 @@ Yes
 ✅ Build iniciado correctamente
 ```
 
+#### `logs <jobName> <buildNumber|latest>`
+Ver, descargar o abrir logs de un build específico en un editor.
+
+```bash
+# Ver logs en terminal (raw)
+butler-cli logs my-job 42
+butler-cli logs frontend/build-app 123
+
+# Usar 'latest' para obtener logs del último build
+butler-cli logs my-job latest
+butler-cli logs frontend/build-app latest
+
+# Descargar logs a archivo
+butler-cli logs my-job 42 --download
+butler-cli logs my-job latest -d
+
+# Abrir logs en editor configurado
+butler-cli logs my-job 42 --editor
+butler-cli logs my-job latest -e
+
+# Descargar a ubicación específica
+butler-cli logs my-job 42 --download --output /tmp/build.log
+butler-cli logs my-job latest -d -o ~/logs/build-latest.log
+
+# Descargar y abrir en editor
+butler-cli logs my-job 42 --download --editor
+butler-cli logs my-job latest -d -e
+```
+
+**Argumentos:**
+- `<buildNumber>`: Número específico del build (ej: 42, 123)
+- `latest`: Palabra clave para obtener automáticamente el último build
+
+**Opciones:**
+- `-d, --download`: Descarga los logs a un archivo
+- `-e, --editor`: Abre los logs en el editor configurado
+- `-o, --output <path>`: Especifica la ruta del archivo de salida
+
+**Salida (ver en terminal):**
+```
+📋 Obteniendo logs del build #42 del job: my-job
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📄 Logs del Build #42
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Started by user admin
+Running as SYSTEM
+Building in workspace /var/jenkins_home/workspace/my-job
+...
+Finished: SUCCESS
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fin de los logs (245 líneas)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Salida (descargar):**
+```
+📥 Descargando logs del build #42 del job: my-job
+
+✅ Logs descargados en: /home/user/.butler-cli/logs/my-job_build-42_2025-10-31.log
+```
+
+**Salida (abrir en editor):**
+```
+📋 Obteniendo logs del build #42 del job: my-job
+
+✅ Logs descargados en: /home/user/.butler-cli/logs/my-job_build-42_2025-10-31.log
+
+🚀 Abriendo logs en code...
+
+✅ Editor abierto. El archivo está en: /home/user/.butler-cli/logs/my-job_build-42_2025-10-31.log
+```
+
+**Nota sobre editores:**
+- Si tienes un editor configurado en las preferencias (`butler-cli config edit`), se usará ese
+- Si no, se intentará detectar automáticamente editores comunes: `code`, `nvim`, `vim`, `nano`, `gedit`, `kate`, `sublime`, `atom`
+- Puedes configurar tu editor preferido con: `butler-cli config edit`
+
 ### Ejemplos de uso
 
 ```bash
@@ -495,6 +607,16 @@ butler-cli last-build microservices/user-service
 butler-cli job-params my-pipeline    # Ver parámetros del job
 butler-cli build my-pipeline         # Ejecutar build (modo interactivo)
 butler-cli build my-pipeline --params "ENV=prod,VERSION=1.0.0"  # Con parámetros CLI
+
+# Trabajar con logs
+butler-cli logs my-job 42            # Ver logs en terminal
+butler-cli logs my-job latest        # Ver logs del último build
+butler-cli logs my-job 42 -d         # Descargar logs
+butler-cli logs my-job latest -e     # Abrir último build en editor
+butler-cli logs my-job 42 -d -o ~/build.log  # Descargar a ubicación específica
+
+# Configurar preferencias (editor, directorio de logs)
+butler-cli config edit               # Editar preferencias de la configuración activa
 ```
 
 ## 🗂️ Estructura del proyecto
@@ -509,6 +631,7 @@ butler-cli/
 │   │   │   ├── use.ts      # Usar configuración
 │   │   │   ├── delete.ts   # Eliminar configuración
 │   │   │   ├── current.ts  # Configuración actual
+│   │   │   ├── edit.ts     # Editar preferencias
 │   │   │   └── index.ts    # Configurador de comandos
 │   │   ├── fetchJobs.ts    # Comando fetch-jobs
 │   │   ├── jobInfo.ts      # Comando job-info
@@ -517,7 +640,8 @@ butler-cli/
 │   │   ├── listJobs.ts     # Comando list-jobs
 │   │   ├── searchJobs.ts   # Comando search-jobs
 │   │   ├── showFolders.ts  # Comando show-folders
-│   │   └── build.ts        # Comando build
+│   │   ├── build.ts        # Comando build
+│   │   └── logs.ts         # Comando logs
 │   ├── utils/              # Utilidades
 │   │   ├── config.ts       # Gestión de configuraciones
 │   │   ├── jenkinsClient.ts # Cliente HTTP para Jenkins
@@ -528,6 +652,7 @@ butler-cli/
 │   └── jobs.json          # Jobs guardados localmente
 ├── ~/.butler-cli/          # Configuraciones de usuario
 │   ├── configs/           # Archivos de configuración (.json)
+│   ├── logs/              # Logs descargados (por defecto)
 │   └── current-config.txt # Configuración activa
 ├── package.json
 ├── tsconfig.json

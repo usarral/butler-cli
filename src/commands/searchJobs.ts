@@ -1,21 +1,24 @@
 import { findJobsByName } from "../utils/jenkinsFolder";
+import { logger } from "../utils/logger";
+import { messages as msg } from "../utils/messages";
+import { formatters } from "../utils/formatters";
 import chalk from "chalk";
 
 export async function searchJobs(searchTerm: string) {
   try {
-    console.log(`🔍 Buscando jobs que contengan: ${chalk.cyan(searchTerm)}`);
+    logger.info(`${msg.icons.search} Buscando jobs que contengan: ${formatters.highlight(searchTerm)}`);
     
     const matchingJobs = await findJobsByName(searchTerm);
     
     if (matchingJobs.length === 0) {
-      console.log(chalk.yellow(`⚠️  No se encontraron jobs que contengan "${searchTerm}".`));
+      logger.warn(formatters.warning(`${msg.icons.warning} No se encontraron jobs que contengan "${searchTerm}".`));
       return;
     }
     
-    console.log(`\n📋 Jobs encontrados (${chalk.green(matchingJobs.length)}):`);
-    console.log("==================================");
+    logger.info(`\n${msg.icons.list} Jobs encontrados (${formatters.success(matchingJobs.length.toString())}):`);
+    logger.info("==================================");
     
-    matchingJobs.forEach(job => {
+    for (const job of matchingJobs) {
       const indent = "  ".repeat(job.level);
       const status = getJobStatus(job.color);
       
@@ -23,25 +26,25 @@ export async function searchJobs(searchTerm: string) {
       const highlightedName = highlightSearchTerm(job.name, searchTerm);
       const highlightedFullName = highlightSearchTerm(job.fullName, searchTerm);
       
-      console.log(`${indent}🔹 ${highlightedName}${status}`);
+      logger.info(`${indent}${msg.icons.circle} ${highlightedName}${status}`);
       
       if (job.fullName !== job.name) {
-        console.log(`${indent}   📁 ${chalk.gray(highlightedFullName)}`);
+        logger.info(`${indent}   ${msg.icons.folder} ${formatters.secondary(highlightedFullName)}`);
       }
-    });
+    }
     
     // Agrupar por carpetas padre si hay muchos resultados
     if (matchingJobs.length > 10) {
-      console.log("\n📊 Resumen por carpetas:");
+      logger.info(`\n${msg.icons.list} Resumen por carpetas:`);
       const folderGroups = groupJobsByParentFolder(matchingJobs);
       
-      Object.entries(folderGroups).forEach(([folder, count]) => {
-        console.log(`   📁 ${chalk.blue(folder || "Raíz")}: ${chalk.green(count)} jobs`);
-      });
+      for (const [folder, count] of Object.entries(folderGroups)) {
+        logger.info(`   ${msg.icons.folder} ${formatters.info(folder || "Raíz")}: ${formatters.success(count.toString())} jobs`);
+      }
     }
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(formatters.error(`${msg.icons.error} ${msg.errors.generic}: ${error.message}`));
   }
 }
 
@@ -50,22 +53,22 @@ function getJobStatus(color?: string): string {
   
   switch (color) {
     case 'blue':
-      return chalk.green(" ✓");
+      return formatters.success(` ${msg.icons.check}`);
     case 'red':
-      return chalk.red(" ✗");
+      return formatters.error(` ${msg.icons.cross}`);
     case 'yellow':
-      return chalk.yellow(" ⚠");
+      return formatters.warning(" ⚠");
     case 'grey':
     case 'disabled':
-      return chalk.gray(" ⚪");
+      return formatters.secondary(" ⚪");
     case 'aborted':
-      return chalk.red(" 🚫");
+      return formatters.error(" 🚫");
     case 'blue_anime':
-      return chalk.cyan(" 🔄");
+      return formatters.info(" 🔄");
     case 'red_anime':
-      return chalk.red(" 🔄");
+      return formatters.error(" 🔄");
     case 'yellow_anime':
-      return chalk.yellow(" 🔄");
+      return formatters.warning(" 🔄");
     default:
       return "";
   }
@@ -79,11 +82,11 @@ function highlightSearchTerm(text: string, searchTerm: string): string {
 function groupJobsByParentFolder(jobs: any[]): Record<string, number> {
   const groups: Record<string, number> = {};
   
-  jobs.forEach(job => {
+  for (const job of jobs) {
     const parts = job.fullName.split('/');
     const parentFolder = parts.length > 1 ? parts.slice(0, -1).join('/') : '';
     groups[parentFolder] = (groups[parentFolder] || 0) + 1;
-  });
+  }
   
   return groups;
 }

@@ -1,4 +1,8 @@
 import { getJenkinsClient } from "./jenkinsClient";
+import { join } from "node:path";
+import { homedir } from "node:os";
+import { logger } from "./logger";
+import { formatters } from "./formatters";
 
 export interface JenkinsJob {
   name: string;
@@ -47,7 +51,7 @@ export async function getAllJobsRecursive(path: string = ""): Promise<JobTreeIte
     
     return items;
   } catch (error: any) {
-    console.error(`Error obteniendo items de ${path || 'raíz'}: ${error.message}`);
+    logger.error(formatters.error(`Error obteniendo items de ${path || 'raíz'}: ${error.message}`));
     return [];
   }
 }
@@ -183,7 +187,7 @@ export async function getJobParameters(jobFullName: string): Promise<JobParamete
       (p: any) => p._class?.includes("ParametersDefinitionProperty")
     );
     
-    if (!paramProperty || !paramProperty.parameterDefinitions) {
+    if (!paramProperty?.parameterDefinitions) {
       return [];
     }
     
@@ -291,4 +295,62 @@ export async function buildJob(
   } catch (error: any) {
     throw new Error(`Error ejecutando build del job ${jobFullName}: ${error.message}`);
   }
+}
+
+/**
+ * Obtiene los logs de un build específico
+ */
+export async function getBuildLogs(
+  jobFullName: string,
+  buildNumber: number | string
+): Promise<string> {
+  const jenkins = getJenkinsClient();
+  
+  try {
+    const jobPath = jobFullName.replace(/\//g, '/job/');
+    const endpoint = `/job/${jobPath}/${buildNumber}/consoleText`;
+    
+    const response = await jenkins.get(endpoint, {
+      responseType: 'text',
+      headers: {
+        'Accept': 'text/plain'
+      }
+    });
+    
+    return response.data;
+  } catch (error: any) {
+    throw new Error(`Error obteniendo logs del build #${buildNumber} del job ${jobFullName}: ${error.message}`);
+  }
+}
+
+/**
+ * Descarga los logs de un build a un archivo
+ */
+export async function downloadBuildLogs(
+  jobFullName: string,
+  buildNumber: number | string,
+  outputPath?: string
+): Promise<string> {
+  const logs = await getBuildLogs(jobFullName, buildNumber);
+  
+  // Si no se especifica ruta, usar directorio por defecto
+  if (!outputPath) {
+    const logsDir = join(homedir(), ".butler-cli", "logs");
+    const { mkdirSync, existsSync } = await import("node:fs");
+    
+    if (!existsSync(logsDir)) {
+      mkdirSync(logsDir, { recursive: true });
+    }
+    
+    // Crear nombre de archivo: job-name_build-123_timestamp.log
+    const sanitizedJobName = jobFullName.replace(/\//g, '_');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+    const fileName = `${sanitizedJobName}_build-${buildNumber}_${timestamp}.log`;
+    outputPath = join(logsDir, fileName);
+  }
+
+  const { writeFileSync } = await import("node:fs");
+  writeFileSync(outputPath, logs, 'utf8');
+  
+  return outputPath;
 }

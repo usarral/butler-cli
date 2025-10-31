@@ -1,37 +1,39 @@
 import { getAllJobs } from "../utils/jenkinsFolder";
 import { saveJobs } from "../utils/storage";
-import chalk from "chalk";
+import { logger } from "../utils/logger";
+import { messages as msg } from "../utils/messages";
+import { formatters } from "../utils/formatters";
 
 export async function fetchJobs() {
   try {
-    console.log("🔍 Obteniendo todos los jobs (incluyendo carpetas)...");
+    logger.info(`${msg.icons.search} ${msg.info.fetchingJobs}`);
     
     const jobItems = await getAllJobs();
     const jobNames = jobItems.map(job => job.fullName);
     
     await saveJobs(jobNames);
     
-    console.log(chalk.green(`✅ ${jobNames.length} jobs guardados para sugerencias futuras.`));
+    logger.info(formatters.success(`${msg.icons.success} ${msg.success.jobsFetched(jobNames.length)}`));
     
     // Mostrar algunos ejemplos de lo que se encontró
     if (jobNames.length > 0) {
-      console.log("\n📋 Ejemplos de jobs encontrados:");
+      logger.info(`\n${msg.icons.list} Ejemplos de jobs encontrados:`);
       const examples = jobNames.slice(0, 5);
-      examples.forEach(name => {
+      for (const name of examples) {
         const parts = name.split('/');
         if (parts.length > 1) {
-          console.log(`   📁 ${chalk.blue(parts.slice(0, -1).join('/'))} → ${chalk.white(parts[parts.length - 1])}`);
+          logger.info(`   ${msg.icons.folder} ${formatters.info(parts.slice(0, -1).join('/'))} → ${formatters.secondary(parts[parts.length - 1])}`);
         } else {
-          console.log(`   🔹 ${chalk.white(name)}`);
+          logger.info(`   ${msg.icons.circle} ${formatters.secondary(name)}`);
         }
-      });
+      }
       
       if (jobNames.length > 5) {
-        console.log(`   ... y ${jobNames.length - 5} más`);
+        logger.info(`   ... y ${jobNames.length - 5} más`);
       }
     }
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(formatters.error(`${msg.icons.error} ${msg.errors.generic}: ${error.message}`));
   }
 }

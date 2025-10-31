@@ -1,16 +1,18 @@
 import { getJobParameters, buildJob, getJobInfo } from "../utils/jenkinsFolder";
-import chalk from "chalk";
+import { logger } from "../utils/logger";
+import { msg } from "../utils/messages";
+import { formatters } from "../utils/formatters";
 import inquirer from "inquirer";
 
 export async function build(jobName: string, options: { params?: string }) {
   try {
-    console.log(`🔨 Preparando build del job: ${chalk.cyan(jobName)}\n`);
+    logger.info(`${msg.icons.building} ${msg.info.preparingBuild(formatters.jobName(jobName))}\n`);
     
     // Verificar que el job existe y es ejecutable
     const jobInfo = await getJobInfo(jobName);
     
     if (!jobInfo.buildable) {
-      console.error(chalk.red(`❌ El job "${jobName}" no es ejecutable.`));
+      logger.error(msg.errors.jobNotExecutable(jobName));
       process.exit(1);
     }
     
@@ -20,18 +22,18 @@ export async function build(jobName: string, options: { params?: string }) {
     let buildParams: { [key: string]: any } = {};
     
     if (parameters.length > 0) {
-      console.log(chalk.blue("📋 Este job requiere parámetros:\n"));
+      logger.info(formatters.info(`${msg.icons.logs} Este job requiere parámetros:\n`));
       
       // Si se pasaron parámetros por CLI
       if (options.params) {
         buildParams = parseCliParams(options.params);
-        console.log(chalk.green("✓ Usando parámetros proporcionados por CLI\n"));
+        logger.info(formatters.success(`${msg.icons.check} ${msg.info.usingCliParams}\n`));
       } else {
         // Modo interactivo: preguntar por cada parámetro
         buildParams = await promptForParameters(parameters);
       }
     } else {
-      console.log(chalk.gray("ℹ️  Este job no requiere parámetros.\n"));
+      logger.info(formatters.secondary(`${msg.icons.info}  Este job no requiere parámetros.\n`));
     }
     
     // Confirmar antes de ejecutar
@@ -39,30 +41,30 @@ export async function build(jobName: string, options: { params?: string }) {
       {
         type: 'confirm',
         name: 'confirm',
-        message: '¿Confirmas que quieres ejecutar este build?',
+        message: msg.prompts.confirmBuild,
         default: true,
       },
     ]);
     
     if (!confirm) {
-      console.log(chalk.yellow("\n🚫 Build cancelado."));
+      logger.warn(`\n🚫 ${msg.warnings.buildCancelled}`);
       return;
     }
     
     // Ejecutar el build
-    console.log(chalk.cyan("\n🚀 Iniciando build...\n"));
+    logger.info(formatters.info(`\n${msg.icons.rocket} Iniciando build...\n`));
     const result = await buildJob(jobName, buildParams);
     
-    console.log(chalk.green("✅ " + result.message));
+    logger.info(formatters.success(`${msg.icons.success} ${result.message}`));
     
     if (result.queueUrl) {
-      console.log(chalk.gray(`📍 Queue URL: ${result.queueUrl}`));
+      logger.info(formatters.secondary(`${msg.icons.location} ${msg.labels.queueUrl}: ${result.queueUrl}`));
     }
     
-    console.log(chalk.blue(`\n💡 Puedes ver el estado del build en: ${jobInfo.url}`));
+    logger.info(formatters.info(`\n💡 Puedes ver el estado del build en: ${formatters.url(jobInfo.url)}`));
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(`${msg.icons.error} ${error.message}`);
     process.exit(1);
   }
 }

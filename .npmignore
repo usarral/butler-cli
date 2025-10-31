@@ -1,0 +1,37 @@
+# Source files
+src/
+tests/
+
+# Configuration files
+tsconfig.json
+vitest.config.ts
+.github/
+
+# Test coverage
+coverage/
+
+# Development files
+*.test.ts
+*.spec.ts
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Lock files (keep pnpm-lock.yaml)
+package-lock.json
+yarn.lock
+
+# Data directory
+data/

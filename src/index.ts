@@ -9,6 +9,7 @@ import { searchJobs } from "./commands/searchJobs";
 import { showFolders } from "./commands/showFolders";
 import { jobParams } from "./commands/jobParams";
 import { build } from "./commands/build";
+import { showLogs } from "./commands/logs";
 import { setupConfigCommands } from "./commands/config";
 
 const program = new Command();
@@ -72,5 +73,15 @@ program
   .option("--params <params>", "Parámetros en formato key=value,key2=value2")
   .description("Ejecutar un build de forma asistida")
   .action(build);
+
+program
+  .command("logs")
+  .argument("<jobName>", "Nombre del job")
+  .argument("<buildNumber>", "Número del build o 'latest' para el más reciente")
+  .option("-d, --download", "Descargar logs a archivo")
+  .option("-e, --editor", "Abrir logs en el editor configurado")
+  .option("-o, --output <path>", "Ruta de salida para el archivo de logs")
+  .description("Ver logs de un build específico")
+  .action(showLogs);
 
 program.parse();

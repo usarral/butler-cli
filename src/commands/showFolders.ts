@@ -1,43 +1,45 @@
 import { getFolderStructure } from "../utils/jenkinsFolder";
-import chalk from "chalk";
+import { logger } from "../utils/logger";
+import { messages as msg } from "../utils/messages";
+import { formatters } from "../utils/formatters";
 
 export async function showFolders(options?: { maxLevel?: number }) {
   try {
     const maxLevel = options?.maxLevel || 3;
-    console.log(`🔍 Mostrando estructura de carpetas (máximo ${maxLevel} niveles)...`);
+    logger.info(`${msg.icons.search} Mostrando estructura de carpetas (máximo ${maxLevel} niveles)...`);
     
     const items = await getFolderStructure(maxLevel);
     const folders = items.filter(item => item.type === 'folder');
     
     if (folders.length === 0) {
-      console.log(chalk.yellow("⚠️  No se encontraron carpetas en Jenkins."));
+      logger.warn(formatters.warning(`${msg.icons.warning} No se encontraron carpetas en Jenkins.`));
       return;
     }
     
-    console.log("\n📁 Estructura de Carpetas:");
-    console.log("===========================");
+    logger.info(`\n${msg.icons.folder} Estructura de Carpetas:`);
+    logger.info("===========================");
     
-    folders.forEach(folder => {
+    for (const folder of folders) {
       const indent = "  ".repeat(folder.level);
-      console.log(`${indent}📁 ${chalk.blue.bold(folder.name)}`);
-      console.log(`${indent}   📍 ${chalk.gray(folder.fullName)}`);
-    });
+      logger.info(`${indent}${msg.icons.folder} ${formatters.info(formatters.bold(folder.name))}`);
+      logger.info(`${indent}   ${msg.icons.location} ${formatters.secondary(folder.fullName)}`);
+    }
     
-    console.log(`\n📊 Total de carpetas: ${chalk.green(folders.length)}`);
+    logger.info(`\n${msg.icons.list} Total de carpetas: ${formatters.success(folders.length.toString())}`);
     
     // Mostrar estadísticas por nivel
     const levelStats: Record<number, number> = {};
-    folders.forEach(folder => {
+    for (const folder of folders) {
       levelStats[folder.level] = (levelStats[folder.level] || 0) + 1;
-    });
+    }
     
-    console.log("\n📈 Distribución por niveles:");
-    Object.entries(levelStats).forEach(([level, count]) => {
+    logger.info("\n📈 Distribución por niveles:");
+    for (const [level, count] of Object.entries(levelStats)) {
       const levelName = level === '0' ? 'Raíz' : `Nivel ${level}`;
-      console.log(`   ${levelName}: ${chalk.green(count)} carpetas`);
-    });
+      logger.info(`   ${levelName}: ${formatters.success(count.toString())} carpetas`);
+    }
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(formatters.error(`${msg.icons.error} ${msg.errors.generic}: ${error.message}`));
   }
 }

@@ -1,12 +1,14 @@
 import inquirer from "inquirer";
 import { configManager } from "../../utils/config";
-import chalk from "chalk";
+import { logger } from "../../utils/logger";
+import { messages as msg } from "../../utils/messages";
+import { formatters } from "../../utils/formatters";
 
 export async function deleteConfig(name?: string): Promise<void> {
   const configs = configManager.listConfigs();
   
   if (configs.length === 0) {
-    console.log(chalk.yellow("⚠️  No hay configuraciones para eliminar"));
+    logger.warn(formatters.warning(`${msg.icons.warning} No hay configuraciones para eliminar`));
     return;
   }
 
@@ -18,7 +20,7 @@ export async function deleteConfig(name?: string): Promise<void> {
       {
         type: "list",
         name: "config",
-        message: "¿Qué configuración deseas eliminar?",
+        message: msg.prompts.selectConfigToDelete,
         choices: configs,
       },
     ]);
@@ -27,13 +29,13 @@ export async function deleteConfig(name?: string): Promise<void> {
 
   // Verificar que la configuración existe
   if (!configToDelete) {
-    console.error(chalk.red("❌ No se especificó configuración para eliminar"));
+    logger.error(formatters.error(`${msg.icons.error} No se especificó configuración para eliminar`));
     return;
   }
 
   const config = configManager.loadConfig(configToDelete);
   if (!config) {
-    console.error(chalk.red(`❌ No se encontró la configuración '${configToDelete}'`));
+    logger.error(formatters.error(`${msg.icons.error} ${msg.errors.configNotFound(configToDelete)}`));
     return;
   }
 
@@ -42,30 +44,30 @@ export async function deleteConfig(name?: string): Promise<void> {
     {
       type: "confirm",
       name: "confirm",
-      message: `¿Estás seguro de que deseas eliminar la configuración '${configToDelete}'?`,
+      message: msg.prompts.confirmDelete(configToDelete),
       default: false,
     },
   ]);
 
   if (!confirmation.confirm) {
-    console.log(chalk.gray("Operación cancelada"));
+    logger.info(formatters.secondary("Operación cancelada"));
     return;
   }
 
   const success = configManager.deleteConfig(configToDelete);
   
   if (success) {
-    console.log(chalk.green(`✅ Configuración '${configToDelete}' eliminada exitosamente`));
+    logger.info(formatters.success(`${msg.icons.success} ${msg.success.configDeleted(configToDelete)}`));
     
     // Si era la configuración activa, informar al usuario
     const currentConfig = configManager.getCurrentConfig();
     if (!currentConfig) {
-      console.log(chalk.yellow("⚠️  No hay configuración activa ahora"));
+      logger.warn(formatters.warning(`${msg.icons.warning} No hay configuración activa ahora`));
       if (configs.length > 1) { // Había más de una configuración
-        console.log(chalk.gray("💡 Usa 'butler-cli config use <nombre>' para activar otra"));
+        logger.info(formatters.secondary(`${msg.icons.info} ${msg.hints.activateConfig}`));
       }
     }
   } else {
-    console.error(chalk.red(`❌ Error eliminando la configuración '${configToDelete}'`));
+    logger.error(formatters.error(`${msg.icons.error} Error eliminando la configuración '${configToDelete}'`));
   }
 }

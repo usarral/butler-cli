@@ -1,6 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import { getJenkinsConfig } from "./config";
-import chalk from "chalk";
+import { logger } from "./logger";
+import { messages as msg } from "./messages";
+import { formatters } from "./formatters";
 
 let jenkinsInstance: AxiosInstance | null = null;
 
@@ -8,8 +10,8 @@ function createJenkinsClient(): AxiosInstance {
   const config = getJenkinsConfig();
   
   if (!config) {
-    console.error(chalk.red("❌ No se encontró configuración de Jenkins."));
-    console.error(chalk.yellow("💡 Usa 'butler-cli config create' para crear una configuración."));
+    logger.error(formatters.error(`${msg.icons.error} ${msg.errors.noConfig}`));
+    logger.info(formatters.secondary(`${msg.icons.info} ${msg.hints.createConfig}`));
     process.exit(1);
   }
 
@@ -23,9 +25,7 @@ function createJenkinsClient(): AxiosInstance {
 }
 
 export function getJenkinsClient(): AxiosInstance {
-  if (!jenkinsInstance) {
-    jenkinsInstance = createJenkinsClient();
-  }
+  jenkinsInstance ??= createJenkinsClient();
   return jenkinsInstance;
 }
 

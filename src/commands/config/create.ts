@@ -1,15 +1,17 @@
 import inquirer from "inquirer";
 import { configManager, JenkinsConfig } from "../../utils/config";
-import chalk from "chalk";
+import { logger } from "../../utils/logger";
+import { messages as msg } from "../../utils/messages";
+import { formatters } from "../../utils/formatters";
 
 export async function createConfig(): Promise<void> {
-  console.log(chalk.blue("🔧 Crear nueva configuración de Jenkins\n"));
+  logger.info(formatters.info(`${msg.icons.gear} Crear nueva configuración de Jenkins\n`));
 
   const answers = await inquirer.prompt([
     {
       type: "input",
       name: "name",
-      message: "Nombre para la configuración:",
+      message: msg.prompts.configName,
       validate: (input) => {
         if (!input.trim()) {
           return "El nombre es requerido";
@@ -23,7 +25,7 @@ export async function createConfig(): Promise<void> {
     {
       type: "input",
       name: "url",
-      message: "URL del servidor Jenkins:",
+      message: msg.prompts.jenkinsUrl,
       validate: (input) => {
         if (!input.trim()) {
           return "La URL es requerida";
@@ -39,24 +41,24 @@ export async function createConfig(): Promise<void> {
     {
       type: "input",
       name: "username",
-      message: "Usuario de Jenkins:",
+      message: msg.prompts.username,
       validate: (input) => input.trim() ? true : "El usuario es requerido",
     },
     {
       type: "password",
       name: "token",
-      message: "Token de API de Jenkins:",
+      message: msg.prompts.token,
       validate: (input) => input.trim() ? true : "El token es requerido",
     },
     {
       type: "input",
       name: "description",
-      message: "Descripción (opcional):",
+      message: msg.prompts.description,
     },
     {
       type: "confirm",
       name: "setAsCurrent",
-      message: "¿Establecer como configuración activa?",
+      message: msg.prompts.setAsActive,
       default: true,
     },
   ]);
@@ -71,15 +73,15 @@ export async function createConfig(): Promise<void> {
 
   try {
     configManager.saveConfig(config);
-    console.log(chalk.green(`✅ Configuración '${config.name}' creada exitosamente`));
+    logger.info(formatters.success(`${msg.icons.success} ${msg.success.configCreated(config.name)}`));
 
     if (answers.setAsCurrent) {
       configManager.setCurrentConfig(config.name);
-      console.log(chalk.green(`✅ Configuración '${config.name}' establecida como activa`));
+      logger.info(formatters.success(`${msg.icons.success} ${msg.success.configActivated(config.name)}`));
     }
 
-    console.log(chalk.gray(`📁 Guardada en: ${configManager.getConfigDir()}`));
+    logger.info(formatters.secondary(`${msg.icons.folder} Guardada en: ${configManager.getConfigDir()}`));
   } catch (error) {
-    console.error(chalk.red(`❌ Error creando la configuración: ${error}`));
+    logger.error(formatters.error(`${msg.icons.error} Error creando la configuración: ${error}`));
   }
 }

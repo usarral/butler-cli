@@ -1,41 +1,39 @@
 import { getJobParameters } from "../utils/jenkinsFolder";
-import chalk from "chalk";
+import { logger } from "../utils/logger";
+import { msg } from "../utils/messages";
+import { formatters, printHeader } from "../utils/formatters";
 
 export async function jobParams(jobName: string) {
   try {
-    console.log(`🔍 Obteniendo parámetros del job: ${chalk.cyan(jobName)}`);
+    logger.info(`${msg.icons.search} ${msg.info.fetchingParams(formatters.jobName(jobName))}`);
     
     const parameters = await getJobParameters(jobName);
     
     if (parameters.length === 0) {
-      console.log(chalk.yellow("\n⚠️  Este job no tiene parámetros configurados."));
+      logger.warn(`\n${msg.icons.warning}  ${msg.warnings.noParams}`);
       return;
     }
     
-    console.log("\n📋 Parámetros del Job:");
-    console.log("======================");
+    printHeader(`${msg.icons.logs} ${msg.labels.jobParams}`);
     
     for (const param of parameters) {
-      console.log(`\n${chalk.bold.blue(param.name)} ${chalk.gray(`(${param.type})`)}`);
+      console.log(`\n${formatters.info(param.name)} ${formatters.secondary(`(${param.type})`)}`);
       
       if (param.description) {
-        console.log(`  ${chalk.gray(param.description)}`);
+        console.log(`  ${formatters.secondary(param.description)}`);
       }
       
       if (param.defaultValue !== undefined) {
-        const displayValue = typeof param.defaultValue === 'boolean' 
-          ? (param.defaultValue ? chalk.green('true') : chalk.red('false'))
-          : chalk.yellow(param.defaultValue);
-        console.log(`  ${chalk.bold("Default:")} ${displayValue}`);
+        console.log(`  ${formatters.title(msg.labels.default)} ${formatters.defaultValue(param.defaultValue)}`);
       }
       
       if (param.choices && param.choices.length > 0) {
-        console.log(`  ${chalk.bold("Opciones:")} ${param.choices.join(", ")}`);
+        console.log(`  ${formatters.title(msg.labels.options)} ${param.choices.join(", ")}`);
       }
     }
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(`${msg.icons.error} ${error.message}`);
     process.exit(1);
   }
 }

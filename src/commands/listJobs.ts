@@ -1,69 +1,71 @@
 import { getAllJobsRecursive, JobTreeItem } from "../utils/jenkinsFolder";
-import chalk from "chalk";
+import { logger } from "../utils/logger";
+import { messages as msg } from "../utils/messages";
+import { formatters } from "../utils/formatters";
 
 export async function listJobs(options?: { showFolders?: boolean; maxLevel?: number }) {
   try {
-    console.log("🔍 Obteniendo estructura de Jenkins...");
+    logger.info(`${msg.icons.search} Obteniendo estructura de Jenkins...`);
     
     const items = await getAllJobsRecursive();
     
     if (items.length === 0) {
-      console.log(chalk.yellow("⚠️  No se encontraron jobs o carpetas."));
+      logger.warn(formatters.warning(`${msg.icons.warning} No se encontraron jobs o carpetas.`));
       return;
     }
     
     // Filtrar por nivel máximo si se especifica
-    const filteredItems = options?.maxLevel !== undefined
-      ? items.filter(item => item.level <= options.maxLevel!)
-      : items;
+    const filteredItems = options?.maxLevel === undefined
+      ? items
+      : items.filter(item => item.level <= options.maxLevel!);
     
     // Filtrar carpetas si no se desean mostrar
     const displayItems = options?.showFolders === false 
       ? filteredItems.filter(item => item.type === 'job')
       : filteredItems;
     
-    console.log("\n📋 Estructura de Jenkins:");
-    console.log("========================");
+    logger.info(`\n${msg.icons.list} Estructura de Jenkins:`);
+    logger.info("========================");
     
-    displayItems.forEach(item => {
+    for (const item of displayItems) {
       const indent = "  ".repeat(item.level);
       const icon = getItemIcon(item);
       const status = getJobStatus(item.color);
       const displayName = item.type === 'folder' 
-        ? chalk.blue.bold(item.name)
-        : chalk.white(item.name);
+        ? formatters.info(formatters.bold(item.name))
+        : formatters.secondary(item.name);
       
-      console.log(`${indent}${icon} ${displayName}${status}`);
-    });
+      logger.info(`${indent}${icon} ${displayName}${status}`);
+    }
     
     // Mostrar resumen
     const totalJobs = displayItems.filter(item => item.type === 'job').length;
     const totalFolders = displayItems.filter(item => item.type === 'folder').length;
     
-    console.log("\n📊 Resumen:");
-    console.log(`   Jobs: ${chalk.green(totalJobs)}`);
+    logger.info(`\n${msg.icons.list} Resumen:`);
+    logger.info(`   Jobs: ${formatters.success(totalJobs.toString())}`);
     if (options?.showFolders !== false) {
-      console.log(`   Carpetas: ${chalk.blue(totalFolders)}`);
+      logger.info(`   Carpetas: ${formatters.info(totalFolders.toString())}`);
     }
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(formatters.error(`${msg.icons.error} ${msg.errors.generic}: ${error.message}`));
   }
 }
 
 function getItemIcon(item: JobTreeItem): string {
   if (item.type === 'folder') {
-    return "📁";
+    return msg.icons.folder;
   }
   
   // Iconos según el estado del job
   switch (item.color) {
     case 'blue':
-      return "✅";
+      return msg.icons.success;
     case 'red':
-      return "❌";
+      return msg.icons.error;
     case 'yellow':
-      return "⚠️";
+      return msg.icons.warning;
     case 'grey':
     case 'disabled':
       return "⚪";
@@ -74,7 +76,7 @@ function getItemIcon(item: JobTreeItem): string {
     case 'yellow_anime':
       return "🔄";
     default:
-      return "🔹";
+      return msg.icons.circle;
   }
 }
 
@@ -83,22 +85,22 @@ function getJobStatus(color?: string): string {
   
   switch (color) {
     case 'blue':
-      return chalk.green(" ✓");
+      return formatters.success(` ${msg.icons.check}`);
     case 'red':
-      return chalk.red(" ✗");
+      return formatters.error(` ${msg.icons.cross}`);
     case 'yellow':
-      return chalk.yellow(" ⚠");
+      return formatters.warning(" ⚠");
     case 'grey':
     case 'disabled':
-      return chalk.gray(" ⚪");
+      return formatters.secondary(" ⚪");
     case 'aborted':
-      return chalk.red(" 🚫");
+      return formatters.error(" 🚫");
     case 'blue_anime':
-      return chalk.cyan(" 🔄");
+      return formatters.info(" 🔄");
     case 'red_anime':
-      return chalk.red(" 🔄");
+      return formatters.error(" 🔄");
     case 'yellow_anime':
-      return chalk.yellow(" 🔄");
+      return formatters.warning(" 🔄");
     default:
       return "";
   }

@@ -1,9 +1,11 @@
 import { getLastBuild, getJobInfo } from "../utils/jenkinsFolder";
-import chalk from "chalk";
+import { logger } from "../utils/logger";
+import { msg } from "../utils/messages";
+import { formatters, printHeader, TableBuilder } from "../utils/formatters";
 
 export async function lastBuild(jobName: string) {
   try {
-    console.log(`🔍 Obteniendo último build del job: ${chalk.cyan(jobName)}`);
+    logger.info(`${msg.icons.search} ${msg.info.fetchingBuildInfo(formatters.jobName(jobName))}`);
     
     const { jobData, buildData } = await validateAndGetBuildData(jobName);
     
@@ -12,7 +14,8 @@ export async function lastBuild(jobName: string) {
     displayBuildCauses(buildData);
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(`${msg.icons.error} ${error.message}`);
+    process.exit(1);
   }
 }
 
@@ -24,7 +27,7 @@ async function validateAndGetBuildData(jobName: string) {
   }
   
   if (!jobData.lastBuild) {
-    throw new Error(`El job "${jobName}" no tiene builds ejecutados.`);
+    throw new Error(msg.errors.noBuildHistory);
   }
   
   const buildData = await getLastBuild(jobName);
@@ -32,40 +35,45 @@ async function validateAndGetBuildData(jobName: string) {
 }
 
 function displayBuildHeader(jobData: any, buildData: any, jobName: string) {
-  console.log("\n🏗️  Información del Último Build:");
-  console.log("=================================");
-  console.log(`${chalk.bold("Job:")} ${jobData.fullName || jobName}`);
-  console.log(`${chalk.bold("Número de build:")} #${buildData.number}`);
-  console.log(`${chalk.bold("URL:")} ${buildData.url}`);
+  printHeader(`🏗️  ${msg.labels.buildInfo}`);
+  
+  const table = new TableBuilder()
+    .add('Job:', jobData.fullName || jobName)
+    .add(msg.labels.buildNumber, formatters.buildNumber(buildData.number))
+    .add(msg.labels.url, formatters.url(buildData.url));
   
   const result = buildData.result;
   if (result) {
-    console.log(`${chalk.bold("Resultado:")} ${getBuildResultDisplay(result)}`);
+    table.add(msg.labels.result, getBuildResultDisplay(result));
   } else {
-    console.log(`${chalk.bold("Estado:")} ${chalk.cyan("🔄 En ejecución")}`);
+    table.add(msg.labels.status, formatters.info("🔄 En ejecución"));
   }
+  
+  console.log(table.build());
 }
 
 function displayBuildTiming(buildData: any) {
+  const table = new TableBuilder();
+  
   if (buildData.duration && buildData.duration > 0) {
-    const durationMinutes = Math.floor(buildData.duration / 60000);
-    const durationSeconds = Math.floor((buildData.duration % 60000) / 1000);
-    console.log(`${chalk.bold("Duración:")} ${durationMinutes}m ${durationSeconds}s`);
+    table.add(msg.labels.duration, formatters.duration(buildData.duration));
   }
   
   if (buildData.timestamp) {
-    const startTime = new Date(buildData.timestamp);
-    console.log(`${chalk.bold("Iniciado:")} ${startTime.toLocaleString()}`);
+    table.add(msg.labels.started, formatters.date(buildData.timestamp));
     
     if (buildData.duration && buildData.duration > 0) {
-      const endTime = new Date(buildData.timestamp + buildData.duration);
-      console.log(`${chalk.bold("Finalizado:")} ${endTime.toLocaleString()}`);
+      table.add(msg.labels.finished, formatters.date(buildData.timestamp + buildData.duration));
     }
   }
   
   if (!buildData.result && buildData.estimatedDuration) {
     const estimatedMinutes = Math.floor(buildData.estimatedDuration / 60000);
-    console.log(`${chalk.bold("Duración estimada:")} ~${estimatedMinutes}m`);
+    table.add('Duración estimada:', `~${estimatedMinutes}m`);
+  }
+  
+  if (table['rows'].length > 0) {
+    console.log(table.build());
   }
 }
 
@@ -77,35 +85,30 @@ function displayBuildCauses(buildData: any) {
     .flatMap((action: any) => action.causes || []);
   
   if (causes.length > 0) {
-    console.log(`${chalk.bold("Iniciado por:")}`);
+    console.log(`\n${formatters.title(msg.labels.startedBy)}`);
     causes.forEach((cause: any) => {
-      console.log(`   • ${getCauseDisplay(cause)}`);
+      console.log(`   ${msg.icons.bullet} ${getCauseDisplay(cause)}`);
     });
   }
 }
 
 function getBuildResultDisplay(result: string): string {
-  switch (result) {
-    case 'SUCCESS':
-      return chalk.green("✅ Exitoso");
-    case 'FAILURE':
-      return chalk.red("❌ Fallido");
-    case 'UNSTABLE':
-      return chalk.yellow("⚠️ Inestable");
-    case 'ABORTED':
-      return chalk.red("🚫 Abortado");
-    case 'NOT_BUILT':
-      return chalk.gray("⏭️ No construido");
-    default:
-      return chalk.gray(result);
-  }
+  const resultMap: Record<string, string> = {
+    'SUCCESS': msg.jobStatus.success,
+    'FAILURE': msg.jobStatus.failed,
+    'UNSTABLE': msg.jobStatus.unstable,
+    'ABORTED': msg.jobStatus.aborted,
+    'NOT_BUILT': '⏭️ No construido',
+  };
+  
+  return resultMap[result] || formatters.secondary(result);
 }
 
 function getCauseDisplay(cause: any): string {
   const className = cause._class || "";
   
   if (className.includes("UserIdCause")) {
-    return `👤 Usuario: ${cause.userId || "Desconocido"}`;
+    return `${msg.icons.user} Usuario: ${cause.userId || "Desconocido"}`;
   }
   if (className.includes("TimerTriggerCause")) {
     return "⏰ Programación temporal";

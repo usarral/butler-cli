@@ -1,31 +1,33 @@
 import { configManager } from "../../utils/config";
-import chalk from "chalk";
+import { logger } from "../../utils/logger";
+import { messages as msg } from "../../utils/messages";
+import { formatters } from "../../utils/formatters";
 
 export async function showCurrentConfig(): Promise<void> {
   const currentConfigName = configManager.getCurrentConfig();
   
   if (!currentConfigName) {
-    console.log(chalk.yellow("⚠️  No hay ninguna configuración activa"));
-    console.log(chalk.gray("💡 Usa 'butler-cli config list' para ver las disponibles"));
-    console.log(chalk.gray("💡 Usa 'butler-cli config use <nombre>' para activar una"));
+    logger.warn(formatters.warning(`${msg.icons.warning} ${msg.errors.noActiveConfig}`));
+    logger.info(formatters.secondary(`${msg.icons.info} Usa 'butler-cli config list' para ver las disponibles`));
+    logger.info(formatters.secondary(`${msg.icons.info} ${msg.hints.activateConfig}`));
     return;
   }
 
   const config = configManager.loadConfig(currentConfigName);
   
   if (!config) {
-    console.error(chalk.red(`❌ Error: configuración activa '${currentConfigName}' no encontrada`));
+    logger.error(formatters.error(`${msg.icons.error} Error: configuración activa '${currentConfigName}' no encontrada`));
     return;
   }
 
-  console.log(chalk.blue("🎯 Configuración activa\n"));
-  console.log(`${chalk.green("●")} ${chalk.cyan(config.name)}`);
-  console.log(`   📍 ${config.url}`);
-  console.log(`   👤 ${config.username}`);
-  console.log(`   🔑 Token: ${"*".repeat(Math.min(config.token.length, 20))}`);
+  logger.info(formatters.info(`🎯 Configuración activa\n`));
+  logger.info(`${formatters.success("●")} ${formatters.highlight(config.name)}`);
+  logger.info(`   ${msg.icons.location} ${config.url}`);
+  logger.info(`   ${msg.icons.user} ${config.username}`);
+  logger.info(`   🔑 Token: ${"*".repeat(Math.min(config.token.length, 20))}`);
   if (config.description) {
-    console.log(`   📝 ${config.description}`);
+    logger.info(`   ${msg.icons.description} ${config.description}`);
   }
   
-  console.log(chalk.gray(`\n📁 Ubicación: ${configManager.getConfigDir()}`));
+  logger.info(formatters.secondary(`\n${msg.icons.folder} Ubicación: ${configManager.getConfigDir()}`));
 }

@@ -1,6 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "fs";
-import { join, dirname } from "path";
-import { homedir } from "os";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { homedir } from "node:os";
+import { logger } from "./logger";
+import { formatters } from "./formatters";
 
 export interface JenkinsConfig {
   name: string;
@@ -8,6 +10,11 @@ export interface JenkinsConfig {
   username: string;
   token: string;
   description?: string;
+  preferences?: {
+    editor?: string;
+    logViewer?: string;
+    downloadLogsDir?: string;
+  };
 }
 
 export interface ConfigManager {
@@ -22,8 +29,8 @@ export interface ConfigManager {
 }
 
 class ConfigManagerImpl implements ConfigManager {
-  private configDir: string;
-  private currentConfigFile: string;
+  private readonly configDir: string;
+  private readonly currentConfigFile: string;
 
   constructor() {
     this.configDir = join(homedir(), ".butler-cli", "configs");
@@ -72,7 +79,7 @@ class ConfigManagerImpl implements ConfigManager {
       const content = readFileSync(configPath, 'utf8');
       return JSON.parse(content) as JenkinsConfig;
     } catch (error) {
-      console.error(`Error loading config ${name}:`, error);
+      logger.error(formatters.error(`Error loading config ${name}: ${error}`));
       return null;
     }
   }
@@ -95,7 +102,7 @@ class ConfigManagerImpl implements ConfigManager {
       
       return true;
     } catch (error) {
-      console.error(`Error deleting config ${name}:`, error);
+      logger.error(formatters.error(`Error deleting config ${name}: ${error}`));
       return false;
     }
   }
@@ -123,7 +130,7 @@ class ConfigManagerImpl implements ConfigManager {
       writeFileSync(this.currentConfigFile, name, 'utf8');
       return true;
     } catch (error) {
-      console.error(`Error setting current config to ${name}:`, error);
+      logger.error(formatters.error(`Error setting current config to ${name}: ${error}`));
       return false;
     }
   }
@@ -134,7 +141,7 @@ class ConfigManagerImpl implements ConfigManager {
         unlinkSync(this.currentConfigFile);
       }
     } catch (error) {
-      console.error('Error clearing current config:', error);
+      logger.error(formatters.error(`Error clearing current config: ${error}`));
     }
   }
 

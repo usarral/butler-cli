@@ -4,6 +4,7 @@ import { listConfigs } from "./list";
 import { useConfig } from "./use";
 import { deleteConfig } from "./delete";
 import { showCurrentConfig } from "./current";
+import { editConfigPreferences } from "./edit";
 
 export function setupConfigCommands(program: Command): void {
   const configCommand = program
@@ -38,4 +39,10 @@ export function setupConfigCommands(program: Command): void {
     .command("current")
     .description("Mostrar la configuración activa")
     .action(showCurrentConfig);
+
+  configCommand
+    .command("edit")
+    .argument("[name]", "Nombre de la configuración a editar (usa la actual si no se especifica)")
+    .description("Editar preferencias de una configuración (editor, visor de logs, etc.)")
+    .action(editConfigPreferences);
 }

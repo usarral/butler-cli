@@ -1,92 +1,90 @@
 import { getJobInfo } from "../utils/jenkinsFolder";
-import chalk from "chalk";
+import { logger } from "../utils/logger";
+import { msg } from "../utils/messages";
+import { formatters, printHeader, TableBuilder } from "../utils/formatters";
 
 export async function jobInfo(jobName: string) {
   try {
-    console.log(`🔍 Obteniendo información del job: ${chalk.cyan(jobName)}`);
+    logger.info(`${msg.icons.search} ${msg.info.fetchingJobInfo(formatters.jobName(jobName))}`);
     
     const jobData = await getJobInfo(jobName);
     
-    console.log("\n📄 Información del Job:");
-    console.log("========================");
-    console.log(`${chalk.bold("Nombre:")} ${jobData.name}`);
-    console.log(`${chalk.bold("Nombre completo:")} ${jobData.fullName || jobName}`);
-    console.log(`${chalk.bold("URL:")} ${jobData.url}`);
-    console.log(`${chalk.bold("Descripción:")} ${jobData.description || chalk.gray("Sin descripción")}`);
+    printHeader(`${msg.icons.file} ${msg.labels.jobInfo}`);
+    
+    const table = new TableBuilder()
+      .add(msg.labels.name, jobData.name)
+      .add(msg.labels.fullName, jobData.fullName || jobName)
+      .add(msg.labels.url, formatters.url(jobData.url))
+      .add(msg.labels.description, jobData.description, msg.values.noDescription);
     
     if (jobData.lastBuild) {
-      console.log(`${chalk.bold("Último build:")} #${jobData.lastBuild.number}`);
-      console.log(`${chalk.bold("URL último build:")} ${jobData.lastBuild.url}`);
+      table.add(msg.labels.lastBuild, formatters.buildNumber(jobData.lastBuild.number));
+      table.add(`${msg.labels.url} ${msg.labels.lastBuild.toLowerCase()}`, formatters.url(jobData.lastBuild.url));
     } else {
-      console.log(`${chalk.bold("Último build:")} ${chalk.gray("Ninguno")}`);
+      table.add(msg.labels.lastBuild, undefined, msg.values.noBuild);
     }
     
     if (jobData.lastSuccessfulBuild) {
-      console.log(`${chalk.bold("Último build exitoso:")} #${jobData.lastSuccessfulBuild.number}`);
+      table.add(msg.labels.lastSuccessfulBuild, formatters.buildNumber(jobData.lastSuccessfulBuild.number));
     }
     
     if (jobData.lastFailedBuild) {
-      console.log(`${chalk.bold("Último build fallido:")} #${jobData.lastFailedBuild.number}`);
+      table.add(msg.labels.lastFailedBuild, formatters.buildNumber(jobData.lastFailedBuild.number));
     }
     
     // Información adicional para MultibranchPipeline o carpetas
     if (jobData._class?.includes("MultiBranchProject") || jobData._class?.includes("Folder")) {
-      console.log(`${chalk.bold("Tipo:")} ${getJobTypeDisplay(jobData._class)}`);
+      table.add(msg.labels.type, getJobTypeDisplay(jobData._class));
       
       if (jobData.jobs && jobData.jobs.length > 0) {
-        console.log(`${chalk.bold("Sub-items:")} ${jobData.jobs.length}`);
+        table.add('Sub-items:', String(jobData.jobs.length));
       }
     }
     
     // Estado del job
     if (jobData.color) {
-      console.log(`${chalk.bold("Estado:")} ${getJobStatusDisplay(jobData.color)}`);
+      table.add(msg.labels.status, getJobStatusDisplay(jobData.color));
     }
     
     // Buildable
-    console.log(`${chalk.bold("Ejecutable:")} ${jobData.buildable ? chalk.green("Sí") : chalk.red("No")}`);
+    table.add(msg.labels.executable, formatters.boolean(jobData.buildable, msg.jobStatus.yes, msg.jobStatus.no));
+    
+    console.log(table.build());
     
   } catch (error: any) {
-    console.error(chalk.red(`❌ Error: ${error.message}`));
+    logger.error(`${msg.icons.error} ${error.message}`);
+    process.exit(1);
   }
 }
 
 function getJobTypeDisplay(className: string): string {
   if (className.includes("MultiBranchProject")) {
-    return chalk.blue("Multi-branch Pipeline");
+    return formatters.info(msg.jobTypes.multiBranch);
   }
   if (className.includes("Folder")) {
-    return chalk.blue("Carpeta");
+    return formatters.info(msg.jobTypes.folder);
   }
   if (className.includes("WorkflowJob")) {
-    return chalk.green("Pipeline");
+    return formatters.success(msg.jobTypes.pipeline);
   }
   if (className.includes("FreeStyleProject")) {
-    return chalk.yellow("Freestyle");
+    return formatters.warning(msg.jobTypes.freestyle);
   }
-  return chalk.gray(className);
+  return formatters.secondary(className);
 }
 
 function getJobStatusDisplay(color: string): string {
-  switch (color) {
-    case 'blue':
-      return chalk.green("✅ Exitoso");
-    case 'red':
-      return chalk.red("❌ Fallido");
-    case 'yellow':
-      return chalk.yellow("⚠️ Inestable");
-    case 'grey':
-    case 'disabled':
-      return chalk.gray("⚪ Deshabilitado");
-    case 'aborted':
-      return chalk.red("🚫 Abortado");
-    case 'blue_anime':
-      return chalk.cyan("🔄 Ejecutándose (exitoso)");
-    case 'red_anime':
-      return chalk.red("🔄 Ejecutándose (fallido)");
-    case 'yellow_anime':
-      return chalk.yellow("🔄 Ejecutándose (inestable)");
-    default:
-      return chalk.gray(color);
-  }
+  const statusMap: Record<string, string> = {
+    'blue': msg.jobStatus.success,
+    'red': msg.jobStatus.failed,
+    'yellow': msg.jobStatus.unstable,
+    'grey': msg.jobStatus.disabled,
+    'disabled': msg.jobStatus.disabled,
+    'aborted': msg.jobStatus.aborted,
+    'blue_anime': msg.jobStatus.runningSuccess,
+    'red_anime': msg.jobStatus.runningFailed,
+    'yellow_anime': msg.jobStatus.runningUnstable,
+  };
+  
+  return statusMap[color] || formatters.secondary(color);
 }
