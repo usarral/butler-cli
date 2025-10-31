@@ -16,6 +16,8 @@ Butler CLI es una aplicación de terminal que permite gestionar y monitorear job
 - 🔍 Búsqueda de jobs por nombre en toda la estructura
 - 📁 Visualización de estructura de carpetas
 - 🎨 Interfaz colorida y amigable en terminal
+- 📋 Consulta de parámetros requeridos por jobs
+- 🚀 Ejecución de builds de forma asistida (interactiva o con parámetros CLI)
 
 ## 🛠️ Instalación
 
@@ -379,6 +381,93 @@ Iniciado por:
    • 🔄 Cambio en repositorio
 ```
 
+#### `job-params <jobName>`
+Muestra los parámetros que necesita un job para ejecutarse, incluyendo sus valores por defecto.
+
+```bash
+butler-cli job-params my-pipeline-job
+butler-cli job-params frontend/build-app
+butler-cli job-params backend/microservices/user-service
+```
+
+**Salida:**
+```
+📋 Parámetros del Job:
+======================
+
+ENVIRONMENT (choice)
+  Ambiente de despliegue
+  Default: development
+  Opciones: development, staging, production
+
+VERSION (string)
+  Versión a desplegar
+  Default: latest
+
+SKIP_TESTS (boolean)
+  Omitir ejecución de tests
+  Default: false
+
+NOTIFICATION_EMAIL (string)
+  Email para notificaciones
+```
+
+#### `build <jobName>`
+Ejecuta un build de un job de forma asistida. El comando solicitará interactivamente los valores para cada parámetro requerido.
+
+```bash
+butler-cli build my-pipeline-job
+butler-cli build frontend/build-app
+butler-cli build backend/microservices/user-service
+
+# También puedes pasar parámetros directamente por CLI
+butler-cli build my-job --params "ENVIRONMENT=production,VERSION=1.2.3,SKIP_TESTS=false"
+```
+
+**Modo interactivo:**
+```
+🔨 Preparando build del job: my-pipeline-job
+
+📋 Este job requiere parámetros:
+
+? Ambiente de despliegue (Use arrow keys)
+❯ development
+  staging
+  production
+
+? Versión a desplegar (latest)
+1.2.3
+
+? Omitir ejecución de tests (Y/n)
+No
+
+? ¿Confirmas que quieres ejecutar este build? (Y/n)
+Yes
+
+🚀 Iniciando build...
+
+✅ Build iniciado correctamente
+📍 Queue URL: https://jenkins.com/queue/item/12345/
+
+💡 Puedes ver el estado del build en: https://jenkins.com/job/my-pipeline-job/
+```
+
+**Modo CLI (con parámetros):**
+```
+🔨 Preparando build del job: my-pipeline-job
+
+📋 Este job requiere parámetros:
+
+✓ Usando parámetros proporcionados por CLI
+
+? ¿Confirmas que quieres ejecutar este build? (Y/n)
+Yes
+
+🚀 Iniciando build...
+
+✅ Build iniciado correctamente
+```
+
 ### Ejemplos de uso
 
 ```bash
@@ -401,6 +490,11 @@ butler-cli last-build backend/api    # Último build del job backend/api
 # Trabajar con jobs en subcarpetas
 butler-cli job-info devops/deployment/staging
 butler-cli last-build microservices/user-service
+
+# Ver parámetros y ejecutar builds
+butler-cli job-params my-pipeline    # Ver parámetros del job
+butler-cli build my-pipeline         # Ejecutar build (modo interactivo)
+butler-cli build my-pipeline --params "ENV=prod,VERSION=1.0.0"  # Con parámetros CLI
 ```
 
 ## 🗂️ Estructura del proyecto
@@ -418,10 +512,12 @@ butler-cli/
 │   │   │   └── index.ts    # Configurador de comandos
 │   │   ├── fetchJobs.ts    # Comando fetch-jobs
 │   │   ├── jobInfo.ts      # Comando job-info
+│   │   ├── jobParams.ts    # Comando job-params
 │   │   ├── lastBuild.ts    # Comando last-build
 │   │   ├── listJobs.ts     # Comando list-jobs
 │   │   ├── searchJobs.ts   # Comando search-jobs
-│   │   └── showFolders.ts  # Comando show-folders
+│   │   ├── showFolders.ts  # Comando show-folders
+│   │   └── build.ts        # Comando build
 │   ├── utils/              # Utilidades
 │   │   ├── config.ts       # Gestión de configuraciones
 │   │   ├── jenkinsClient.ts # Cliente HTTP para Jenkins

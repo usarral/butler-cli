@@ -7,6 +7,8 @@ import { jobInfo } from "./commands/jobInfo";
 import { lastBuild } from "./commands/lastBuild";
 import { searchJobs } from "./commands/searchJobs";
 import { showFolders } from "./commands/showFolders";
+import { jobParams } from "./commands/jobParams";
+import { build } from "./commands/build";
 import { setupConfigCommands } from "./commands/config";
 
 const program = new Command();
@@ -57,5 +59,18 @@ program
   .command("last-build")
   .argument("<jobName>", "Nombre del job (puede incluir carpetas: folder/subfolder/job)")
   .action(lastBuild);
+
+program
+  .command("job-params")
+  .argument("<jobName>", "Nombre del job (puede incluir carpetas: folder/subfolder/job)")
+  .description("Mostrar los parámetros requeridos por un job")
+  .action(jobParams);
+
+program
+  .command("build")
+  .argument("<jobName>", "Nombre del job (puede incluir carpetas: folder/subfolder/job)")
+  .option("--params <params>", "Parámetros en formato key=value,key2=value2")
+  .description("Ejecutar un build de forma asistida")
+  .action(build);
 
 program.parse();

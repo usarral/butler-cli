@@ -155,3 +155,140 @@ export async function getFolderStructure(maxLevel: number = 2): Promise<JobTreeI
   const allItems = await getAllJobsRecursive();
   return allItems.filter(item => item.level <= maxLevel);
 }
+
+/**
+ * Interfaz para representar un parámetro de un job
+ */
+export interface JobParameter {
+  name: string;
+  type: string;
+  description?: string;
+  defaultValue?: any;
+  choices?: string[];
+}
+
+/**
+ * Obtiene los parámetros que necesita un job para ejecutarse
+ */
+export async function getJobParameters(jobFullName: string): Promise<JobParameter[]> {
+  const jenkins = getJenkinsClient();
+  
+  try {
+    const jobPath = jobFullName.replace(/\//g, '/job/');
+    const response = await jenkins.get(`/job/${jobPath}/api/json`);
+    const jobData = response.data;
+    
+    // Los parámetros están en property con _class que contiene "ParametersDefinitionProperty"
+    const paramProperty = jobData.property?.find(
+      (p: any) => p._class?.includes("ParametersDefinitionProperty")
+    );
+    
+    if (!paramProperty || !paramProperty.parameterDefinitions) {
+      return [];
+    }
+    
+    // Mapear los parámetros a nuestro formato
+    return paramProperty.parameterDefinitions.map((param: any) => {
+      const parameter: JobParameter = {
+        name: param.name,
+        type: getParameterType(param._class),
+        description: param.description || undefined,
+        defaultValue: getDefaultValue(param),
+      };
+      
+      // Si es un choice parameter, añadir las opciones
+      if (param._class?.includes("ChoiceParameterDefinition") && param.choices) {
+        parameter.choices = param.choices;
+      }
+      
+      return parameter;
+    });
+  } catch (error: any) {
+    throw new Error(`Error obteniendo parámetros del job ${jobFullName}: ${error.message}`);
+  }
+}
+
+/**
+ * Extrae el tipo de parámetro simplificado del nombre de clase
+ */
+function getParameterType(className: string): string {
+  if (!className) return "unknown";
+  
+  const typeMap: { [key: string]: string } = {
+    "StringParameterDefinition": "string",
+    "BooleanParameterDefinition": "boolean",
+    "ChoiceParameterDefinition": "choice",
+    "PasswordParameterDefinition": "password",
+    "TextParameterDefinition": "text",
+    "FileParameterDefinition": "file",
+  };
+  
+  for (const [key, value] of Object.entries(typeMap)) {
+    if (className.includes(key)) {
+      return value;
+    }
+  }
+  
+  return className.split('.').pop() || "unknown";
+}
+
+/**
+ * Extrae el valor por defecto de un parámetro
+ */
+function getDefaultValue(param: any): any {
+  // Para parámetros booleanos
+  if (param._class?.includes("BooleanParameterDefinition")) {
+    return param.defaultParameterValue?.value ?? false;
+  }
+  
+  // Para otros tipos de parámetros
+  if (param.defaultParameterValue) {
+    return param.defaultParameterValue.value;
+  }
+  
+  return undefined;
+}
+
+/**
+ * Ejecuta un build de un job con los parámetros proporcionados
+ */
+export async function buildJob(
+  jobFullName: string,
+  parameters?: { [key: string]: any }
+): Promise<{ queueUrl: string; message: string }> {
+  const jenkins = getJenkinsClient();
+  
+  try {
+    const jobPath = jobFullName.replace(/\//g, '/job/');
+    
+    // Si el job tiene parámetros, usar buildWithParameters, sino build
+    let endpoint: string;
+    let formData: URLSearchParams | undefined;
+    
+    if (parameters && Object.keys(parameters).length > 0) {
+      endpoint = `/job/${jobPath}/buildWithParameters`;
+      formData = new URLSearchParams();
+      
+      // Añadir cada parámetro al formulario
+      for (const [key, value] of Object.entries(parameters)) {
+        formData.append(key, String(value));
+      }
+    } else {
+      endpoint = `/job/${jobPath}/build`;
+    }
+    
+    // Jenkins retorna una respuesta 201 con el location de la cola
+    const response = await jenkins.post(endpoint, formData, {
+      headers: formData ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}
+    });
+    
+    const queueUrl = response.headers.location || response.headers.Location || "";
+    
+    return {
+      queueUrl,
+      message: "Build iniciado correctamente"
+    };
+  } catch (error: any) {
+    throw new Error(`Error ejecutando build del job ${jobFullName}: ${error.message}`);
+  }
+}
