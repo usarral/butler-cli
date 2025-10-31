@@ -1,370 +1,220 @@
 # Butler CLI
 
-🤖 Una herramienta de línea de comandos para interactuar con Jenkins Pipelines de forma sencilla y eficiente.
+[![npm version](https://img.shields.io/npm/v/butler-cli.svg)](https://www.npmjs.com/package/butler-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-## 📋 Descripción
+🤖 A command-line tool to interact with Jenkins Pipelines in a simple and efficient way.
 
-Butler CLI es una aplicación de terminal que permite gestionar y monitorear jobs de Jenkins a través de comandos simples. Facilita la consulta de información sobre pipelines, builds y su estado sin necesidad de acceder a la interfaz web de Jenkins.
+## 📋 Description
 
-## ⚡ Características
+Butler CLI is a terminal application that allows you to manage and monitor Jenkins jobs through simple commands. It makes it easy to query information about pipelines, builds, and their status without needing to access the Jenkins web interface.
 
-- 📋 Listar todos los jobs disponibles en Jenkins (incluyendo carpetas y subcarpetas)
-- 🔍 Obtener información detallada de un job específico (soporta rutas de carpetas)
-- 🔄 Consultar el último build de un job
-- 💾 Guardar listado de jobs localmente para referencias futuras
-- 🗂️ Navegación por estructura de carpetas de Jenkins
-- 🔍 Búsqueda de jobs por nombre en toda la estructura
-- 📁 Visualización de estructura de carpetas
-- 🎨 Interfaz colorida y amigable en terminal
-- 📋 Consulta de parámetros requeridos por jobs
-- 🚀 Ejecución de builds de forma asistida (interactiva o con parámetros CLI)
-- 📄 Visualización y descarga de logs de builds
-- ✏️ Apertura de logs en editores configurables
-- ⚙️ Sistema de preferencias personalizables (editor, visor de logs, directorio)
+## ⚡ Features
 
-## 🛠️ Instalación
+- 📋 List all available jobs in Jenkins (including folders and subfolders)
+- 🔍 Get detailed information about a specific job (supports folder paths)
+- 🔄 Query the last build of a job
+- 💾 Save job list locally for future references
+- 🗂️ Navigate through Jenkins folder structure
+- 🔍 Search jobs by name across the entire structure
+- 📁 Visualize folder structure
+- 🎨 Colorful and user-friendly terminal interface
+- 📋 Query required parameters for jobs
+- 🚀 Execute builds in an assisted manner (interactive or with CLI parameters)
+- 📄 View and download build logs
+- ✏️ Open logs in configurable editors
+- ⚙️ Customizable preferences system (editor, log viewer, directory)
 
-### Prerequisitos
+## 🛠️ Installation
 
-- Node.js (versión 16 o superior)
-- pnpm (recomendado) o npm
-- Acceso a un servidor Jenkins con credenciales de API
+### Prerequisites
 
-### Instalación desde código fuente
+- Node.js (version 16 or higher)
+- pnpm (recommended) or npm
+- Access to a Jenkins server with API credentials
 
-1. Clona el repositorio:
+### Installation from source
+
+1. Clone the repository:
 ```bash
 git clone https://github.com/usarral/butler-cli.git
 cd butler-cli
 ```
 
-2. Instala las dependencias (usar cualquier package manager):
+2. Install dependencies:
 ```bash
-# Con npm
+# With npm
 npm install
 
-# Con pnpm  
+# With pnpm  
 pnpm install
 
-# Con yarn
+# With yarn
 yarn install
 ```
 
-3. Instala globalmente:
+3. Build the project:
 ```bash
-# Con npm
+npm run build
+# or
+pnpm build
+```
+
+4. Install globally (optional):
+```bash
+# With npm
 npm install -g .
 
-# Con pnpm
+# With pnpm
 pnpm install -g .
 
-# Con yarn
+# With yarn
 yarn global add .
 ```
 
-> **Nota**: El comando `postinstall` se ejecutará automáticamente y construirá el proyecto.
-
-### Instalación desde npm (cuando esté publicado)
+### Installation from npm (when published)
 
 ```bash
-# Con npm
+# With npm
 npm install -g butler-cli
 
-# Con pnpm
+# With pnpm
 pnpm install -g butler-cli
 
-# Con yarn
+# With yarn
 yarn global add butler-cli
 ```
 
-## ⚙️ Configuración
+## ⚙️ Configuration
 
-Butler CLI utiliza un sistema de configuraciones basado en archivos que permite gestionar múltiples servidores Jenkins de forma sencilla. Las configuraciones se almacenan en tu directorio home (`~/.butler-cli/configs/`).
+Butler CLI uses a file-based configuration system that allows you to manage multiple Jenkins servers easily. Configurations are stored in your home directory (`~/.butler-cli/configs/`).
 
-### Gestión de configuraciones
+### Configuration Management
 
-#### Crear una nueva configuración
+#### Create a new configuration
 
 ```bash
 butler-cli config create
 ```
 
-El comando te guiará paso a paso para crear una nueva configuración:
-- **Nombre**: Identificador único para la configuración
-- **URL**: Dirección del servidor Jenkins
-- **Usuario**: Tu nombre de usuario en Jenkins
-- **Token**: Token de API de Jenkins
-- **Descripción**: Descripción opcional
-- **Activar**: Si establecer como configuración activa
+The command will guide you step by step to create a new configuration:
+- **Name**: Unique identifier for the configuration
+- **URL**: Jenkins server address
+- **User**: Your Jenkins username
+- **Token**: Jenkins API token
+- **Description**: Optional description
+- **Activate**: Whether to set as active configuration
 
-#### Listar configuraciones
-
+#### List configurations
 ```bash
 butler-cli config list
-# o usar el alias
+# or use the alias
 butler-cli config ls
 ```
 
-Muestra todas las configuraciones disponibles con la configuración activa marcada.
+Shows all available configurations with the active one marked.
 
-#### Usar una configuración
-
-```bash
-butler-cli config use <nombre>
-```
-
-Establece una configuración como activa para usar en los comandos de Jenkins.
-
-#### Ver configuración actual
+#### Use a configuration
 
 ```bash
-butler-cli config current
+butler-cli config use <name>
 ```
 
-Muestra la configuración actualmente activa.
+Sets a configuration as active for use in Jenkins commands.
 
-#### Eliminar una configuración
-
-```bash
-butler-cli config delete [nombre]
-# o usar el alias
-butler-cli config rm [nombre]
-```
-
-Si no especificas el nombre, te mostrará una lista para seleccionar.
-
-### Obtener token de Jenkins
-
-1. Ve a tu perfil de Jenkins → Configurar
-2. En la sección "API Token", genera un nuevo token
-3. Usa este token al crear la configuración
-
-### Compatibilidad con variables de entorno
-
-Por compatibilidad, Butler CLI seguirá funcionando con variables de entorno si no tienes configuraciones:
-
-```bash
-export JENKINS_URL="https://tu-jenkins-server.com"
-export JENKINS_USER="tu-usuario"
-export JENKINS_TOKEN="tu-token-de-api"
-```
-
-### Ejemplo de workflow con configuraciones
-
-```bash
-# Crear configuración para entorno de desarrollo
-butler-cli config create
-# Nombre: dev
-# URL: https://jenkins-dev.empresa.com
-# Usuario: mi-usuario
-# Token: abc123...
-
-# Crear configuración para producción
-butler-cli config create
-# Nombre: prod
-# URL: https://jenkins-prod.empresa.com
-# Usuario: mi-usuario
-# Token: xyz789...
-
-# Listar configuraciones
-butler-cli config list
-
-# Usar configuración de desarrollo
-butler-cli config use dev
-butler-cli fetch-jobs
-
-# Cambiar a producción
-butler-cli config use prod
-butler-cli list-jobs
-```
-
-## 🚀 Uso
-
-### Comandos disponibles
-
-#### Gestión de configuraciones
-
-##### `config create`
-Crea una nueva configuración de Jenkins de forma interactiva.
-
-```bash
-butler-cli config create
-```
-
-##### `config list`
-Lista todas las configuraciones disponibles.
-
-```bash
-butler-cli config list
-butler-cli config ls  # alias
-```
-
-**Salida:**
-```
-● ACTIVA dev
-   📍 https://jenkins-dev.empresa.com
-   👤 mi-usuario
-   📝 Servidor de desarrollo
-
-○ prod
-   📍 https://jenkins-prod.empresa.com
-   👤 mi-usuario
-   📝 Servidor de producción
-```
-
-##### `config use <nombre>`
-Establece una configuración como activa.
-
-```bash
-butler-cli config use prod
-```
-
-##### `config current`
-Muestra la configuración actualmente activa.
+#### View current configuration
 
 ```bash
 butler-cli config current
 ```
 
-##### `config delete [nombre]`
-Elimina una configuración (con confirmación).
+Shows the currently active configuration.
+
+#### Delete a configuration
 
 ```bash
-butler-cli config delete dev
-butler-cli config rm dev  # alias
+butler-cli config delete [name]
+# or use the alias
+butler-cli config rm [name]
 ```
 
-##### `config edit [nombre]`
-Edita las preferencias de una configuración (editor, visor de logs, directorio de descarga).
+If you don't specify the name, it will show you a list to select from.
+
+### Get Jenkins Token
+
+1. Go to your Jenkins profile → Configure
+2. In the "API Token" section, generate a new token
+3. Use this token when creating the configuration
+
+### Compatibility with environment variables
+
+For compatibility, Butler CLI will still work with environment variables if you don't have configurations:
 
 ```bash
-butler-cli config edit           # Edita la configuración activa
-butler-cli config edit prod      # Edita una configuración específica
+export JENKINS_URL="https://your-jenkins-server.com"
+export JENKINS_USER="your-username"
+export JENKINS_TOKEN="your-api-token"
 ```
 
-**Preferencias configurables:**
-- **Editor preferido**: Para abrir archivos de logs (code, vim, nano, etc.)
-- **Visor de logs**: Editor específico para logs (opcional, usa el editor principal si no se especifica)
-- **Directorio de logs**: Ruta donde descargar los logs (por defecto: `~/.butler-cli/logs`)
+## 🚀 Usage
 
-**Ejemplo de configuración:**
-```
-⚙️  Editar Preferencias de Configuración
+### Configuration Commands
 
-? Editor preferido para archivos: code
-? Visor de logs: 
-? Directorio para descargar logs: 
+#### `config create`
+Creates a new Jenkins configuration interactively.
 
-✅ Preferencias actualizadas para "dev"
+#### `config list` / `config ls`
+Lists all available configurations.
 
-📋 Preferencias actuales:
-  Editor: code
-  Visor de logs: (usa el editor principal)
-  Dir. de logs: (~/.butler-cli/logs)
-```
+#### `config use <name>`
+Sets a configuration as active.
 
-#### Comandos de Jenkins
+#### `config current`
+Shows the currently active configuration.
+
+#### `config delete [name]` / `config rm [name]`
+Deletes a configuration (with confirmation).
+
+#### `config edit [name]`
+Edits configuration preferences (editor, log viewer, download directory).
+
+### Jenkins Commands
 
 #### `fetch-jobs`
-Descarga y guarda la lista de todos los jobs disponibles en Jenkins, incluyendo aquellos dentro de carpetas y subcarpetas.
+Downloads and saves the list of all available jobs in Jenkins, including those within folders and subfolders.
 
 ```bash
 butler-cli fetch-jobs
-```
-
-**Salida:**
-```
-🔍 Obteniendo todos los jobs (incluyendo carpetas)...
-✅ 15 jobs guardados para sugerencias futuras.
-
-📋 Ejemplos de jobs encontrados:
-   📁 frontend → build-app
-   📁 backend/microservices → user-service
-   📁 backend/microservices → order-service
-   🔹 integration-tests
-   ... y 11 más
 ```
 
 #### `list-jobs`
-Muestra todos los jobs disponibles en Jenkins con estructura jerárquica de carpetas.
+Shows all available jobs in Jenkins with hierarchical folder structure.
 
 ```bash
 butler-cli list-jobs
-butler-cli list-jobs --folders           # Incluir carpetas en la vista
-butler-cli list-jobs --max-level 2      # Limitar profundidad
-```
-
-**Salida:**
-```
-� Estructura de Jenkins:
-========================
-📁 frontend ✓
-  🔹 build-app ✓
-  �🔹 deploy-app ✓
-📁 backend
-  📁 microservices
-    🔹 user-service ✓
-    🔹 order-service ⚠
-🔹 integration-tests ✓
-
-📊 Resumen:
-   Jobs: 5
-   Carpetas: 2
+butler-cli list-jobs --folders           # Include folders in the view
+butler-cli list-jobs --max-level 2      # Limit depth
 ```
 
 #### `show-folders`
-Muestra únicamente la estructura de carpetas de Jenkins.
+Shows only the Jenkins folder structure.
 
 ```bash
 butler-cli show-folders
 butler-cli show-folders --max-level 3
 ```
 
-**Salida:**
-```
-📁 Estructura de Carpetas:
-===========================
-📁 frontend
-   📍 frontend
-📁 microservices
-   📍 backend/microservices
-� deployment
-   📍 devops/deployment
-
-📊 Total de carpetas: 3
-
-📈 Distribución por niveles:
-   Raíz: 2 carpetas
-   Nivel 1: 1 carpetas
-```
-
 #### `search-jobs`
-Busca jobs por nombre en toda la estructura de Jenkins.
+Searches for jobs by name across the entire Jenkins structure.
 
 ```bash
-butler-cli search-jobs user
-butler-cli search-jobs test
-```
-
-**Salida:**
-```
-📋 Jobs encontrados (3):
-==================================
-🔹 **user**-service ✓
-   📁 backend/microservices/user-service
-🔹 **user**-interface ✓
-   📁 frontend/user-interface
-🔹 integration-**test**s ⚠
-   📁 integration-tests
-
-📊 Resumen por carpetas:
-   📁 backend/microservices: 1 jobs
-   📁 frontend: 1 jobs
-   📁 Raíz: 1 jobs
+butler-cli search-jobs <searchTerm>
 ```
 
 #### `job-info <jobName>`
-Obtiene información detallada de un job específico. Ahora soporta rutas de carpetas.
+Gets detailed information about a specific job. Supports folder paths.
 
 ```bash
 butler-cli job-info my-pipeline-job
@@ -372,361 +222,176 @@ butler-cli job-info frontend/build-app
 butler-cli job-info backend/microservices/user-service
 ```
 
-**Salida:**
-```
-📄 Información del Job:
-========================
-Nombre: user-service
-Nombre completo: backend/microservices/user-service
-URL: https://jenkins.com/job/backend/job/microservices/job/user-service/
-Descripción: Microservicio para gestión de usuarios
-Último build: #42
-URL último build: https://jenkins.com/.../42/
-Último build exitoso: #42
-Tipo: Pipeline
-Estado: ✅ Exitoso
-Ejecutable: Sí
-```
-
 #### `last-build <jobName>`
-Muestra información del último build ejecutado de un job. Soporta rutas de carpetas.
+Shows information about the last executed build of a job. Supports folder paths.
 
 ```bash
 butler-cli last-build my-pipeline-job
 butler-cli last-build frontend/build-app
-butler-cli last-build backend/microservices/user-service
-```
-
-**Salida:**
-```
-🏗️ Información del Último Build:
-=================================
-Job: backend/microservices/user-service
-Número de build: #42
-URL: https://jenkins.com/.../42/
-Resultado: ✅ Exitoso
-Duración: 3m 45s
-Iniciado: 07/10/2025 14:30:25
-Finalizado: 07/10/2025 14:34:10
-Iniciado por:
-   • � Usuario: juan.perez
-   • 🔄 Cambio en repositorio
 ```
 
 #### `job-params <jobName>`
-Muestra los parámetros que necesita un job para ejecutarse, incluyendo sus valores por defecto.
+Shows the parameters a job needs to run, including their default values.
 
 ```bash
 butler-cli job-params my-pipeline-job
-butler-cli job-params frontend/build-app
-butler-cli job-params backend/microservices/user-service
-```
-
-**Salida:**
-```
-📋 Parámetros del Job:
-======================
-
-ENVIRONMENT (choice)
-  Ambiente de despliegue
-  Default: development
-  Opciones: development, staging, production
-
-VERSION (string)
-  Versión a desplegar
-  Default: latest
-
-SKIP_TESTS (boolean)
-  Omitir ejecución de tests
-  Default: false
-
-NOTIFICATION_EMAIL (string)
-  Email para notificaciones
 ```
 
 #### `build <jobName>`
-Ejecuta un build de un job de forma asistida. El comando solicitará interactivamente los valores para cada parámetro requerido.
+Executes a build of a job in an assisted manner. The command will interactively request values for each required parameter.
 
 ```bash
 butler-cli build my-pipeline-job
-butler-cli build frontend/build-app
-butler-cli build backend/microservices/user-service
 
-# También puedes pasar parámetros directamente por CLI
-butler-cli build my-job --params "ENVIRONMENT=production,VERSION=1.2.3,SKIP_TESTS=false"
-```
-
-**Modo interactivo:**
-```
-🔨 Preparando build del job: my-pipeline-job
-
-📋 Este job requiere parámetros:
-
-? Ambiente de despliegue (Use arrow keys)
-❯ development
-  staging
-  production
-
-? Versión a desplegar (latest)
-1.2.3
-
-? Omitir ejecución de tests (Y/n)
-No
-
-? ¿Confirmas que quieres ejecutar este build? (Y/n)
-Yes
-
-🚀 Iniciando build...
-
-✅ Build iniciado correctamente
-📍 Queue URL: https://jenkins.com/queue/item/12345/
-
-💡 Puedes ver el estado del build en: https://jenkins.com/job/my-pipeline-job/
-```
-
-**Modo CLI (con parámetros):**
-```
-🔨 Preparando build del job: my-pipeline-job
-
-📋 Este job requiere parámetros:
-
-✓ Usando parámetros proporcionados por CLI
-
-? ¿Confirmas que quieres ejecutar este build? (Y/n)
-Yes
-
-🚀 Iniciando build...
-
-✅ Build iniciado correctamente
+# You can also pass parameters directly via CLI
+butler-cli build my-job --params "ENVIRONMENT=production,VERSION=1.2.3"
 ```
 
 #### `logs <jobName> <buildNumber|latest>`
-Ver, descargar o abrir logs de un build específico en un editor.
+View, download, or open logs from a specific build in an editor.
 
 ```bash
-# Ver logs en terminal (raw)
+# View logs in terminal
 butler-cli logs my-job 42
-butler-cli logs frontend/build-app 123
-
-# Usar 'latest' para obtener logs del último build
 butler-cli logs my-job latest
-butler-cli logs frontend/build-app latest
 
-# Descargar logs a archivo
+# Download logs to file
 butler-cli logs my-job 42 --download
 butler-cli logs my-job latest -d
 
-# Abrir logs en editor configurado
+# Open logs in configured editor
 butler-cli logs my-job 42 --editor
 butler-cli logs my-job latest -e
 
-# Descargar a ubicación específica
+# Download to specific location
 butler-cli logs my-job 42 --download --output /tmp/build.log
-butler-cli logs my-job latest -d -o ~/logs/build-latest.log
-
-# Descargar y abrir en editor
-butler-cli logs my-job 42 --download --editor
-butler-cli logs my-job latest -d -e
 ```
 
-**Argumentos:**
-- `<buildNumber>`: Número específico del build (ej: 42, 123)
-- `latest`: Palabra clave para obtener automáticamente el último build
-
-**Opciones:**
-- `-d, --download`: Descarga los logs a un archivo
-- `-e, --editor`: Abre los logs en el editor configurado
-- `-o, --output <path>`: Especifica la ruta del archivo de salida
-
-**Salida (ver en terminal):**
-```
-📋 Obteniendo logs del build #42 del job: my-job
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📄 Logs del Build #42
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Started by user admin
-Running as SYSTEM
-Building in workspace /var/jenkins_home/workspace/my-job
-...
-Finished: SUCCESS
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Fin de los logs (245 líneas)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-**Salida (descargar):**
-```
-📥 Descargando logs del build #42 del job: my-job
-
-✅ Logs descargados en: /home/user/.butler-cli/logs/my-job_build-42_2025-10-31.log
-```
-
-**Salida (abrir en editor):**
-```
-📋 Obteniendo logs del build #42 del job: my-job
-
-✅ Logs descargados en: /home/user/.butler-cli/logs/my-job_build-42_2025-10-31.log
-
-🚀 Abriendo logs en code...
-
-✅ Editor abierto. El archivo está en: /home/user/.butler-cli/logs/my-job_build-42_2025-10-31.log
-```
-
-**Nota sobre editores:**
-- Si tienes un editor configurado en las preferencias (`butler-cli config edit`), se usará ese
-- Si no, se intentará detectar automáticamente editores comunes: `code`, `nvim`, `vim`, `nano`, `gedit`, `kate`, `sublime`, `atom`
-- Puedes configurar tu editor preferido con: `butler-cli config edit`
-
-### Ejemplos de uso
+### Example Workflow
 
 ```bash
-# Workflow con configuraciones y carpetas
-butler-cli config create              # Crear configuración
-butler-cli config list               # Ver configuraciones
-butler-cli config use production     # Cambiar a producción
+# Create configuration
+butler-cli config create              # Create configuration
+butler-cli config list               # View configurations
+butler-cli config use production     # Switch to production
 
-# Explorar estructura de Jenkins
-butler-cli fetch-jobs                # Obtener todos los jobs (incluye carpetas)
-butler-cli show-folders              # Ver solo estructura de carpetas
-butler-cli list-jobs --folders       # Ver jobs y carpetas
-butler-cli list-jobs --max-level 2   # Limitar profundidad
+# Explore Jenkins structure
+butler-cli fetch-jobs                # Get all jobs (includes folders)
+butler-cli show-folders              # View folder structure only
+butler-cli list-jobs --folders       # View jobs and folders
 
-# Buscar y obtener información específica
-butler-cli search-jobs user          # Buscar jobs que contengan "user"
-butler-cli job-info frontend/build   # Info del job en carpeta frontend
-butler-cli last-build backend/api    # Último build del job backend/api
+# Search and get specific information
+butler-cli search-jobs user          # Search for jobs containing "user"
+butler-cli job-info frontend/build   # Info about job in frontend folder
+butler-cli last-build backend/api    # Last build of backend/api job
 
-# Trabajar con jobs en subcarpetas
-butler-cli job-info devops/deployment/staging
-butler-cli last-build microservices/user-service
+# View parameters and execute builds
+butler-cli job-params my-pipeline    # View job parameters
+butler-cli build my-pipeline         # Execute build (interactive mode)
+butler-cli build my-pipeline --params "ENV=prod,VERSION=1.0.0"
 
-# Ver parámetros y ejecutar builds
-butler-cli job-params my-pipeline    # Ver parámetros del job
-butler-cli build my-pipeline         # Ejecutar build (modo interactivo)
-butler-cli build my-pipeline --params "ENV=prod,VERSION=1.0.0"  # Con parámetros CLI
-
-# Trabajar con logs
-butler-cli logs my-job 42            # Ver logs en terminal
-butler-cli logs my-job latest        # Ver logs del último build
-butler-cli logs my-job 42 -d         # Descargar logs
-butler-cli logs my-job latest -e     # Abrir último build en editor
-butler-cli logs my-job 42 -d -o ~/build.log  # Descargar a ubicación específica
-
-# Configurar preferencias (editor, directorio de logs)
-butler-cli config edit               # Editar preferencias de la configuración activa
+# Work with logs
+butler-cli logs my-job 42            # View logs in terminal
+butler-cli logs my-job latest        # View latest build logs
+butler-cli logs my-job 42 -d         # Download logs
+butler-cli logs my-job latest -e     # Open latest build in editor
 ```
 
-## 🗂️ Estructura del proyecto
+## 🗂️ Project Structure
 
 ```
 butler-cli/
 ├── src/
-│   ├── commands/           # Comandos del CLI
-│   │   ├── config/         # Comandos de configuración
-│   │   │   ├── create.ts   # Crear configuración
-│   │   │   ├── list.ts     # Listar configuraciones
-│   │   │   ├── use.ts      # Usar configuración
-│   │   │   ├── delete.ts   # Eliminar configuración
-│   │   │   ├── current.ts  # Configuración actual
-│   │   │   ├── edit.ts     # Editar preferencias
-│   │   │   └── index.ts    # Configurador de comandos
-│   │   ├── fetchJobs.ts    # Comando fetch-jobs
-│   │   ├── jobInfo.ts      # Comando job-info
-│   │   ├── jobParams.ts    # Comando job-params
-│   │   ├── lastBuild.ts    # Comando last-build
-│   │   ├── listJobs.ts     # Comando list-jobs
-│   │   ├── searchJobs.ts   # Comando search-jobs
-│   │   ├── showFolders.ts  # Comando show-folders
-│   │   ├── build.ts        # Comando build
-│   │   └── logs.ts         # Comando logs
-│   ├── utils/              # Utilidades
-│   │   ├── config.ts       # Gestión de configuraciones
-│   │   ├── jenkinsClient.ts # Cliente HTTP para Jenkins
-│   │   ├── jenkinsFolder.ts # Utilidades para carpetas de Jenkins
-│   │   └── storage.ts      # Gestión de almacenamiento local
-│   └── index.ts            # Punto de entrada principal
-├── data/                   # Datos locales (creado automáticamente)
-│   └── jobs.json          # Jobs guardados localmente
-├── ~/.butler-cli/          # Configuraciones de usuario
-│   ├── configs/           # Archivos de configuración (.json)
-│   ├── logs/              # Logs descargados (por defecto)
-│   └── current-config.txt # Configuración activa
+│   ├── commands/           # CLI commands
+│   │   ├── config/         # Configuration commands
+│   │   ├── fetchJobs.ts    # fetch-jobs command
+│   │   ├── jobInfo.ts      # job-info command
+│   │   ├── build.ts        # build command
+│   │   └── logs.ts         # logs command
+│   ├── utils/              # Utilities
+│   │   ├── config.ts       # Configuration management
+│   │   ├── jenkinsClient.ts # HTTP client for Jenkins
+│   │   └── storage.ts      # Local storage management
+│   └── index.ts            # Main entry point
+├── tests/                  # Test files
+├── docs/                   # Documentation
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
 
-## 🔧 Desarrollo
+## 🔧 Development
 
-### Scripts disponibles
+### Available Scripts
 
 ```bash
-pnpm run dev      # Ejecutar en modo desarrollo
-pnpm run build    # Construir para producción
-pnpm run start    # Ejecutar versión construida
-pnpm run lint     # Linter de código
+pnpm run dev      # Run in development mode
+pnpm run build    # Build for production
+pnpm run start    # Run built version
+pnpm run test     # Run tests
+pnpm run test:coverage  # Run tests with coverage
 ```
 
-### Agregar nuevos comandos
+### Adding New Commands
 
-1. Crea un nuevo archivo en `src/commands/`
-2. Implementa la función del comando
-3. Registra el comando en `src/index.ts`
+1. Create a new file in `src/commands/`
+2. Implement the command function
+3. Register the command in `src/index.ts`
 
-Ejemplo:
-```typescript
-// src/commands/myCommand.ts
-export async function myCommand() {
-  console.log("¡Nuevo comando!");
-}
+## 📦 Dependencies
 
-// src/index.ts
-import { myCommand } from "./commands/myCommand";
+### Main
+- **commander**: CLI framework
+- **axios**: HTTP client for API calls
+- **chalk**: Terminal colors
+- **inquirer**: Interactive prompts
+- **pino**: Logging
 
-program.command("my-command").action(myCommand);
-```
+### Development
+- **typescript**: Programming language
+- **vitest**: Testing framework
+- **ts-node**: Direct TypeScript execution
 
-## 📦 Dependencias
+## 🤝 Contributing
 
-### Principales
-- **commander**: Framework para CLI
-- **axios**: Cliente HTTP para llamadas a la API
-- **chalk**: Colores en terminal
-- **inquirer**: Prompts interactivos
+Want to contribute? Great! Check out our [Contributing Guide](CONTRIBUTING.md) for more details.
 
-### Desarrollo
-- **typescript**: Lenguaje de programación
-- **ts-node**: Ejecución directa de TypeScript
-- **@types/node**: Tipos de Node.js
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'feat: add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
 
-## 🤝 Contribuir
+## 📚 Documentation
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-caracteristica`)
-3. Commit tus cambios (`git commit -am 'Agregar nueva característica'`)
-4. Push a la rama (`git push origin feature/nueva-caracteristica`)
-5. Abre un Pull Request
+- **[README](README.md)** - This guide
+- **[FAQ](docs/FAQ.md)** - Frequently asked questions
+- **[Examples Guide](docs/EXAMPLES.md)** - Practical examples
+- **[Architecture](docs/ARCHITECTURE.md)** - Technical documentation
+- **[Jenkins API](docs/JENKINS_API.md)** - API guide
+- **[Contributing](CONTRIBUTING.md)** - Contribution guide
+- **[Changelog](CHANGELOG.md)** - Change history
+- **[Publishing](docs/PUBLISHING.md)** - Publishing guide
 
-## 📝 Licencia
+## 📝 License
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-## 🐛 Reporte de errores
+## 🐛 Bug Reports
 
-Si encuentras algún error o tienes sugerencias, por favor:
+If you find a bug or have suggestions, please:
 
-1. Revisa si ya existe un issue similar
-2. Crea un nuevo issue con:
-   - Descripción del problema
-   - Pasos para reproducir
-   - Versión de Node.js y sistema operativo
-   - Logs de error (si aplica)
+1. Check if a similar issue exists in [GitHub Issues](https://github.com/usarral/butler-cli/issues)
+2. Check the [FAQ](docs/FAQ.md)
+3. Create a new issue with:
+   - Problem description
+   - Steps to reproduce
+   - Butler CLI version (`butler-cli --version`)
+   - Node.js version (`node --version`)
+   - Operating system
+   - Error logs (if applicable)
 
-## 📧 Contacto
+## 📧 Contact
 
-**Autor:** usarral  
-**Repositorio:** [https://github.com/usarral/butler-cli](https://github.com/usarral/butler-cli)
-
+**Author:** usarral  
+**Repository:** [https://github.com/usarral/butler-cli](https://github.com/usarral/butler-cli)
