@@ -16,6 +16,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.0.0] - 2025-10-31
 
+## [2.0.0] - 2025-10-31
+
+### Added
+- English documentation sweep (README, docs/ARCHITECTURE.md, docs/JENKINS_API.md)
+- GitHub Actions workflow and publishing configuration for npm
+
+### Changed
+- Bumped package version to 2.0.0
+
+
 ### Added
 - Complete configuration management system
   - Create, list, use, delete configurations
